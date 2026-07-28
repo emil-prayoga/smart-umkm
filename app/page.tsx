@@ -2,8 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabaseClient";
-import { Plus, Package, Sparkles, RefreshCw } from "lucide-react";
-import Groq from "groq-sdk";
+import { Package, DollarSign, TrendingUp, BarChart3, PieChart as PieIcon } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
 interface Product {
   id: string;
@@ -14,20 +26,11 @@ interface Product {
   stock: number;
 }
 
+const COLORS = ["#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // State untuk Form Input
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [costPrice, setCostPrice] = useState("");
-  const [stock, setStock] = useState("");
-
-  // State untuk AI Recommendation
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiRecommendation, setAiRecommendation] = useState<string | null>(null);
 
   // Fetch Data Produk
   const fetchProducts = async () => {
@@ -49,244 +52,215 @@ export default function Home() {
     }
   };
 
-   useEffect(() => {
-    const loadProducts = async () => {
-      await fetchProducts();
-    };
-    loadProducts();
-  }, []); 
+     useEffect(() => {
+    const loadProducts = async () => {
+      await fetchProducts();
+    };
+  loadProducts();
+  }, []);
 
-  // Handle Tambah Produk Baru
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !price || !costPrice) return alert("Mohon isi field yang wajib!");
+  // 1. Total Jenis Produk
+  const totalJenisProduk = products.length;
 
-    setLoading(true);
-    const { error } = await supabase.from("products").insert([
-      {
-        name,
-        category: category || "Umum",
-        price: Number(price),
-        cost_price: Number(costPrice),
-        stock: Number(stock) || 0,
-      },
-    ]);
+  // 2. Hitung Total Modal (HPP x Stok)
+  const totalModal = products.reduce((acc, item) => {
+    return acc + item.cost_price * item.stock;
+  }, 0);
 
-    if (error) {
-      alert("Gagal menambah produk: " + error.message);
-      setLoading(false);
-    } else {
-      setName("");
-      setCategory("");
-      setPrice("");
-      setCostPrice("");
-      setStock("");
-      fetchProducts();
-    }
-  };
+  // 3. Hitung Estimasi Total Keuntungan/Laba ((Harga - Modal) x Stok)
+  const totalEstimasiLaba = products.reduce((acc, item) => {
+    const labaPerUnit = item.price - item.cost_price;
+    return acc + labaPerUnit * item.stock;
+  }, 0);
 
-  // Handle Panggilan AI Copilot
-  // Handle Panggilan AI Copilot (Langsung via Groq SDK di Client)
-  const handleGetAiInsight = async () => {
-    if (products.length === 0) {
-      alert("Tambahkan minimal 1 produk terlebih dahulu!");
-      return;
-    }
+  // Data olahan untuk Grafik Bar
+  const chartData = products.map((item) => ({
+    name: item.name,
+    Modal: item.cost_price * item.stock,
+    PotensiLaba: (item.price - item.cost_price) * item.stock,
+  }));
 
-    setAiLoading(true);
-    try {
-      const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+  // Data olahan untuk Pie Chart
+  const stockPieData = products.map((item) => ({
+    name: item.name,
+    value: item.stock,
+  }));
 
-      if (!apiKey) {
-        alert("API Key Groq tidak ditemukan! Pastikan ada NEXT_PUBLIC_GROQ_API_KEY di .env.local");
-        setAiLoading(false);
-        return;
-      }
-
-      // Inisialisasi Groq client ( dangerouslyAllowBrowser wajib dipakai kalau di page.jsx )
-      const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
-
-      const prompt = `
-Kamu adalah Konsultan Bisnis UMKM. Berikan 3-4 saran strategi bisnis singkat berbasis data produk berikut:
-${JSON.stringify(products, null, 2)}
-
-Fokus pada:
-1. Margin keuntungan (Laba per unit).
-2. Ide paket promo bundling produk.
-3. Tips meningkatkan omzet & stok.
-
-Gunakan bahasa Indonesia yang ramah dan format poin-poin yang mudah dibaca.
-      `;
-
-      const completion = await groq.chat.completions.create({
-        messages: [{ role: "user", content: prompt }],
-        model: "llama-3.3-70b-versatile",
-      });
-
-      const reply =
-        completion.choices[0]?.message?.content ||
-        "Gagal mendapatkan hasil dari AI.";
-
-      setAiRecommendation(reply);
-    } catch (err) {
-      console.error("Groq Error:", err);
-      alert("Gagal menghubungi AI Assistant.");
-    } finally {
-      setAiLoading(false);
-    }
-  };
   return (
-    <main className="min-h-screen bg-neutral-950 text-neutral-100 p-6  ">
+    <main className="bg-neutral-950 text-neutral-100 min-h-screen p-4 sm:p-6 md:p-8">
+      {/* Container utama dibatasi ukurannya di desktop dengan max-w-7xl & mx-auto */}
       <div className="max-w-7xl mx-auto space-y-8">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-emerald-400">SmartUMKM Dashboard</h1>
-          <p className="text-neutral-400 text-sm mt-1">
-            Kelola data inventaris & dapatkan analisis strategi bisnis berbasis AI.
-          </p>
-        </div>
-
-        <button
-          onClick={handleGetAiInsight}
-          disabled={aiLoading}
-          className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40"
-        >
-          {aiLoading ? (
-            <RefreshCw className="w-4 h-4 animate-spin" />
-          ) : (
-            <Sparkles className="w-4 h-4 fill-neutral-950" />
-          )}
-          {aiLoading ? "Menganalisis Data..." : "Analisis Bisnis dengan AI"}
-        </button>
-      </div>
-
-      {/* KARTU HASIL AI INSIGHT */}
-      {aiRecommendation && (
-        <div className="bg-gradient-to-br from-neutral-900 to-emerald-950/30 border border-emerald-500/30 p-6 rounded-2xl space-y-3 relative overflow-hidden">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg">
-            <Sparkles className="w-5 h-5" /> Rekomendasi Konsultan AI:
-          </div>
-          <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-line">
-            {aiRecommendation}
+        
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400">
+              SmartUMKM Dashboard
+            </h1>
+            <p className="text-neutral-400 text-sm mt-1">
+              Ringkasan performa inventaris dan estimasi potensi keuntungan usaha Anda.
+            </p>
           </div>
         </div>
-      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* FORM INPUT PRODUK */}
-        <div className="lg:col-span-4 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Plus className="w-5 h-5 text-emerald-400" /> Tambah Produk Baru
-          </h2>
-
-          <form onSubmit={handleAddProduct} className="space-y-3">
-            <div>
-              <label className="text-xs text-neutral-400">Nama Produk *</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Contoh: Kopi Susu Aren"
-                className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-              />
+        {/* RINGKASAN STATISTIK */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Kartu 1: Total Produk */}
+          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
+            <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
+              Total Jenis Produk
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-2xl sm:text-3xl font-bold text-neutral-100">
+                {totalJenisProduk} <span className="text-sm font-normal text-neutral-500">Item</span>
+              </span>
+              <Package className="w-8 h-8 text-emerald-400/80" />
             </div>
+          </div>
 
-            <div>
-              <label className="text-xs text-neutral-400">Kategori</label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Minuman / Makanan"
-                className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-              />
+          {/* Kartu 2: Total Modal */}
+          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
+            <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
+              Total Nilai Inventaris (Modal)
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-2xl sm:text-3xl font-bold text-neutral-100">
+                Rp {totalModal.toLocaleString("id-ID")}
+              </span>
+              <DollarSign className="w-8 h-8 text-teal-400/80" />
             </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-neutral-400">Harga Jual (Rp) *</label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="15000"
-                  className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-neutral-400">Modal / HPP (Rp) *</label>
-                <input
-                  type="number"
-                  value={costPrice}
-                  onChange={(e) => setCostPrice(e.target.value)}
-                  placeholder="8000"
-                  className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-                />
-              </div>
+          {/* Kartu 3: Estimasi Laba */}
+          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2 sm:col-span-2 lg:col-span-1">
+            <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
+              Estimasi Potensi Laba
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-2xl sm:text-3xl font-bold text-emerald-400">
+                Rp {totalEstimasiLaba.toLocaleString("id-ID")}
+              </span>
+              <TrendingUp className="w-8 h-8 text-emerald-400" />
             </div>
-
-            <div>
-              <label className="text-xs text-neutral-400">Stok Awal</label>
-              <input
-                type="number"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                placeholder="50"
-                className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 mt-2 bg-emerald-500 text-neutral-950 font-semibold rounded-xl text-sm hover:bg-emerald-400 transition-colors disabled:opacity-50"
-            >
-              {loading ? "Menyimpan..." : "Simpan Produk"}
-            </button>
-          </form>
+          </div>
         </div>
 
-        {/* TABEL LIST PRODUK */}
-        <div className="lg:col-span-8 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Package className="w-5 h-5 text-emerald-400" /> Daftar Inventaris Produk
-          </h2>
+        {/* SECTION GRAFIK / DIAGRAM */}
+        {loading ? (
+          <div className="p-12 text-center text-neutral-500 bg-neutral-900/50 border border-neutral-800 rounded-2xl">
+            Memuat grafik...
+          </div>
+        ) : products.length === 0 ? (
+          <div className="p-12 text-center text-neutral-500 border border-neutral-800 rounded-2xl bg-neutral-900">
+            Belum ada data produk untuk ditampilkan di grafik.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            {/* GRAFIK 1: PERBANDINGAN MODAL VS LABA PER PRODUK (Bar Chart) */}
+            <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 border-b border-neutral-800 pb-4">
+                <BarChart3 className="w-5 h-5 text-emerald-400" />
+                <h2 className="font-semibold text-neutral-200">
+                  Analisis Modal vs Potensi Laba per Produk
+                </h2>
+              </div>
+              
+              <div className="h-80 w-full pt-2">
+                <ResponsiveContainer width="100%" height="100%" >
+                  <BarChart data={chartData} barGap={8} barCategoryGap="20%">
+  <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
+  <XAxis dataKey="name" stroke="#737373" fontSize={12} />
+  <YAxis stroke="#737373" fontSize={12} />
+  <Tooltip
+    cursor={false}
+    contentStyle={{
+      backgroundColor: "#171717",
+      borderColor: "#404040",
+      borderRadius: "8px",
+      color: "#f5f5f5",
+    }}
+    formatter={(value) => [`Rp ${Number(value).toLocaleString("id-ID")}`, ""]}
+  />
+  <Legend />
 
-          {loading && products.length === 0 ? (
-            <p className="text-sm text-neutral-500">Memuat data...</p>
-          ) : products.length === 0 ? (
-            <p className="text-sm text-neutral-500 py-8 text-center">Belum ada produk. Tambahkan produk pertamamu!</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-neutral-300">
-                <thead className="border-b border-neutral-800 text-xs text-neutral-500 uppercase">
-                  <tr>
-                    <th className="py-3 px-2">Nama</th>
-                    <th className="py-3 px-2">Kategori</th>
-                    <th className="py-3 px-2">Harga Jual</th>
-                    <th className="py-3 px-2">Laba/Unit</th>
-                    <th className="py-3 px-2">Stok</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-800/50">
-                  {products.map((item) => (
-                    <tr key={item.id} className="hover:bg-neutral-800/30 transition-colors">
-                      <td className="py-3 px-2 font-medium text-neutral-100">{item.name}</td>
-                      <td className="py-3 px-2 text-neutral-400">{item.category}</td>
-                      <td className="py-3 px-2">Rp {item.price.toLocaleString("id-ID")}</td>
-                      <td className="py-3 px-2 text-emerald-400">
-                        Rp {(item.price - item.cost_price).toLocaleString("id-ID")}
-                      </td>
-                      <td className="py-3 px-2">{item.stock}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+  {/* Batang 1: Modal */}
+  <Bar 
+    dataKey="Modal" 
+    name="Modal"
+    fill="rgba(13, 148, 136, 0.55)" 
+    stroke="#0d9488"
+    strokeWidth={1}
+    radius={[4, 4, 0, 0]} 
+    barSize={24}
+    activeBar={false}
+  />
+
+  {/* Batang 2: Potensi Laba */}
+  <Bar 
+    dataKey="PotensiLaba" 
+    name="Potensi Laba"
+    fill="rgba(16, 185, 129, 0.55)" 
+    stroke="#10b981"
+    strokeWidth={1}
+    radius={[4, 4, 0, 0]} 
+    barSize={24}
+    activeBar={false}
+  />
+</BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+
+            {/* GRAFIK 2: PROPORSI STOK (Pie Chart) */}
+            <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-sm">
+              <div className="flex items-center gap-2 border-b border-neutral-800 pb-4">
+                <PieIcon className="w-5 h-5 text-emerald-400" />
+                <h2 className="font-semibold text-neutral-200">Komposisi Stok</h2>
+              </div>
+              
+              <div className="h-80 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart accessibilityLayer={false}>
+                    <Pie
+                      data={stockPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={4}
+                      dataKey="value"
+                      stroke="#171717"
+                      strokeWidth={2}
+                    >
+                      {stockPieData.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={`${COLORS[index % COLORS.length]}99`} 
+                          stroke={COLORS[index % COLORS.length]}
+                          strokeWidth={1}
+                          className="outline-none"
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#171717",
+                        borderColor: "#404040",
+                        borderRadius: "8px",
+                        color: "#f5f5f5",
+                      }}
+                      formatter={(value) => [`${value} Unit`, "Stok"]}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+          </div>
+        )}
+
       </div>
     </main>
   );
