@@ -112,7 +112,7 @@ export default function Home() {
             </p>
             <div className="flex items-center justify-between">
               <span className="text-2xl sm:text-3xl font-bold text-neutral-100">
-                {totalJenisProduk} <span className="text-sm font-normal text-neutral-500">Item</span>
+                {totalJenisProduk} Item
               </span>
               <Package className="w-8 h-8 text-emerald-400/80" />
             </div>
