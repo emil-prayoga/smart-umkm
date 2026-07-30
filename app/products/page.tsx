@@ -276,7 +276,7 @@ setStock("");
 
                          <button
                           onClick={() => handleDeleteProduct(item.id)}
-                          className="w-16 py-1.5 mt-1 bg-emerald-500 text-neutral-950 font-semibold rounded-xl text-sm hover:bg-emerald-400 transition-colors disabled:opacity-50">
+                          className="w-16 py-1.5 mt-1 bg-rose-500 text-neutral-950 font-semibold rounded-xl text-sm hover:bg-rose-400 transition-colors disabled:opacity-50">
                             Hapus
                         </button>
                       </div>
