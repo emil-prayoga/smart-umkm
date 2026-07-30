@@ -128,7 +128,7 @@ Gunakan bahasa Indonesia yang ramah, profesional, dan gunakan format Markdown (b
           <button
             onClick={handleGetAiInsight}
             disabled={aiLoading || loading}
-            className="w-30 flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40 cursor-pointer"
+            className="w-32 flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40 cursor-pointer"
           >
             {aiLoading ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
