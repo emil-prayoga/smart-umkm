@@ -120,7 +120,7 @@ export default function FinancePage() {
           {/* TOMBOL PEMICU MODAL */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-64 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-500/10 cursor-pointer text-sm"
+            className="w-2xl flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-500/10 cursor-pointer text-sm"
           >
             <Plus className="w-5 h-5" /> Catat Transaksi
           </button>
