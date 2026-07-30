@@ -150,7 +150,7 @@ setStock("");
       </div>
 
       {isOpen &&(
-             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+             <div className="fixed inset-0 bg-black/60 h-full backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <Plus className="w-5 h-5 text-emerald-400" /> {editingId ? "Edit Produk ":"Tambah Produk Baru"}
