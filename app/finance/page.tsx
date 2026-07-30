@@ -88,13 +88,16 @@ export default function FinancePage() {
   const netBalance = totalIncome - totalExpense;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <main className="bg-neutral-950 text-neutral-100 p-6 ">
+      <div className=" mx-auto min-h-screen  space-y-8">
       {/* HEADER */}
-      <div>
-        <h1 className="text-3xl font-bold text-neutral-100">Pencatatan Keuangan & Arus Kas</h1>
-        <p className="text-neutral-400 text-sm mt-1">
-          Catat seluruh pemasukan penjualan dan pengeluaran operasional UMKM kamu.
-        </p>
+       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-emerald-400">Pencatatan Keuangan & Arus Kas</h1>
+          <p className="text-neutral-400 text-sm mt-1">
+             Catat seluruh pemasukan penjualan dan pengeluaran operasional UMKM.
+          </p>
+        </div>
       </div>
 
       {/* RINGKASAN SALDO (CARDS) */}
@@ -282,7 +285,8 @@ export default function FinancePage() {
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
