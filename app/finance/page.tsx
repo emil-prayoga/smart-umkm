@@ -231,8 +231,9 @@ export default function FinancePage() {
 
         {/* TABEL HISTORI (KANAN - 7 COL) */}
         <div className="lg:col-span-7 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
-          <h2 className="text-lg font-semibold text-neutral-100">Riwayat Transaksi Kas</h2>
-
+            <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
+            <Tag className="w-5 h-5 text-emerald-400" /> Riwayat Transaksi Kas
+          </h2>
           {loading ? (
             <div className="p-8 text-center text-neutral-500 flex justify-center items-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin" /> Memuat data transaksi...
