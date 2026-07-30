@@ -17,13 +17,13 @@ import {
 
 const menuItems = [
   { name: "Dashboard", path: "/", icon: LayoutDashboard },
-  { name: "Ide Usaha", path: "/ideas", icon: Rocket },
+  // { name: "Ide Usaha", path: "/ideas", icon: Rocket },
   { name: "Manajemen Produk", path: "/products", icon: Package },
-  { name: "Transaksi Keuangan", path: "/finance", icon: CreditCard },
+  // { name: "Transaksi Keuangan", path: "/finance", icon: CreditCard },
   { name: "Analisis Prediksi AI", path: "/analytics", icon: TrendingUp },
-  { name: "Strategi Promo AI", path: "/insights", icon: Sparkles },
-  { name: "Laporan Bisnis", path: "/reports", icon: FileText },
-  { name: "Pengaturan", path: "/settings", icon: Settings },
+  // { name: "Strategi Promo AI", path: "/insights", icon: Sparkles },
+  // { name: "Laporan Bisnis", path: "/reports", icon: FileText },
+  // { name: "Pengaturan", path: "/settings", icon: Settings },
 ];
 
 export default function Sidebar() {
