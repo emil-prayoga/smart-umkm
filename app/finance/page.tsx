@@ -120,7 +120,7 @@ export default function FinancePage() {
           {/* TOMBOL PEMICU MODAL */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-100 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-500/10 cursor-pointer text-sm"
+            className="w-20 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-500/10 cursor-pointer text-sm"
           >
             <Plus className="w-5 h-5" /> Catat Transaksi
           </button>
@@ -249,18 +249,10 @@ export default function FinancePage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-neutral-900 border border-neutral-800 w-full max-w-md rounded-2xl p-6 space-y-5 shadow-2xl relative">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+            
               <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
                 <PlusCircle className="w-5 h-5 text-emerald-400" /> Catat Transaksi Baru
               </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-neutral-400 hover:text-neutral-100 p-1 rounded-lg hover:bg-neutral-800 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
 
             {/* Modal Form Input */}
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -353,7 +345,7 @@ export default function FinancePage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 py-2.5 border border-neutral-800 text-neutral-400 hover:text-neutral-200 font-semibold rounded-xl text-sm transition-all"
+                  className="w-1/2 py-2.5 bg-neutral-800 text-neutral-300 font-semibold rounded-xl text-sm hover:bg-neutral-700"
                 >
                   Batal
                 </button>

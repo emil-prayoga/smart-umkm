@@ -143,7 +143,7 @@ setStock("");
         </div>
          <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40"
+          className="w-20 flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40"
         >
           Tambah Produk
         </button>
@@ -276,7 +276,7 @@ setStock("");
 
                          <button
                           onClick={() => handleDeleteProduct(item.id)}
-                          className="w-16 py-1.5 mt-1 bg-rose-500 text-neutral-950 font-semibold rounded-xl text-sm hover:bg-rose-400 transition-colors disabled:opacity-50">
+                          className="w-16 py-1.5 mt-1 bg-rose-500 text-white font-semibold rounded-xl text-sm hover:bg-rose-400 transition-colors disabled:opacity-50">
                             Hapus
                         </button>
                       </div>
