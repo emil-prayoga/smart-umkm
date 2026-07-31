@@ -85,7 +85,7 @@ export default function Home() {
         <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400">
-              Dashboard Utama
+              Dashboard Utama {storeName || "Toko UMKM Saya"}
             </h1>
             <p className="text-neutral-400 text-sm mt-1">
               Ringkasan performa inventaris, stok barang, dan potensi keuntungan usaha Anda.
