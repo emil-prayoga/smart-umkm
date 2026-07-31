@@ -50,30 +50,29 @@ Sesuai dengan alur kebutuhan UMKM dari skala nol hingga berkembang, SmartUMKM me
 Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer lokal Anda:
 
 ### 1. Clone Repository
-```bash
+```
 git clone [https://github.com/username-kamu/smart-umkm.git](https://github.com/username-kamu/smart-umkm.git)
 cd smart-umkm
 ```
 ### 2. Install Dependencies
-```Bash
+```
 npm install
 ```
-# atau
+atau
 ```
 yarn install
 ```
-# atau
+atau
 ```
 pnpm install
 ```
 ### 3. Konfigurasi Environment Variables (.env.local)
 Buat file .env.local di root direktori proyek dan tambahkan API Keys berikut:
-Cuplikan kode
-# Supabase Configuration
+Supabase Configuration
 ```NEXT_PUBLIC_SUPABASE_URL=[https://your-supabase-project-url.supabase.co](https://your-supabase-project-url.supabase.co)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
-# Groq AI Configuration
+[]Groq AI Configuration
 ```
 NEXT_PUBLIC_GROQ_API_KEY=your-groq-api-key
 ```
