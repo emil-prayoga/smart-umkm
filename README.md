@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 SmartUMKM — Platform AI Pengelola & Strategi Bisnis UMKM
 
-## Getting Started
+**SmartUMKM** adalah platform manajemen bisnis serba-ada yang dirancang khusus untuk membantu pelaku usaha mikro, kecil, dan menengah (UMKM) serta calon pengusaha pemula di Indonesia. Menggabungkan pencatatan inventaris & transaksi harian dengan kecerdasan buatan (**Groq SDK / Llama 3.3 70B**), SmartUMKM mampu memberikan prediksi tren, saran bundling, hingga ide bisnis secara otomatis.
 
-First, run the development server:
+---
 
+## 🌟 Fitur Utama
+
+Sesuai dengan alur kebutuhan UMKM dari skala nol hingga berkembang, SmartUMKM memiliki 8 modul utama:
+
+1. **🏠 Onboarding & Pilihan Alur**  
+   Pengalaman awal dinamis yang memisahkan alur untuk *Pemula (Belum Punya Usaha)* dan *Pemilik Usaha*.
+
+2. **🚀 Ide Usaha Berbasis AI (`/ideas`)**  
+   Generator ide bisnis otomatis berdasarkan modal awal, minat/kategori (F&B, IT/Software, Fashion, dll.), dan lokasi usaha lengkap dengan estimasi modal & analisis kompetitor.
+
+3. **📊 Dashboard Utama (`/dashboard`)**  
+   Pusat kendali ringkasan performa bisnis: Total Pemasukan, Pengeluaran, Laba/Rugi, Total Stok, grafik tren penjualan, dan Notifikasi Pintar.
+
+4. **📦 Manajemen Produk & Stok (`/products`)**  
+   Kelola inventaris barang (CRUD), kategori produk, kalkulasi otomatis margin/laba per unit (Harga Jual vs HPP), serta indikator visual status stok (*Aman*, *Menipis*, *Habis*).
+
+5. **💳 Transaksi & Keuangan (`/finance`)**  
+   Pencatatan arus kas operasional harian (Pemasukan & Pengeluaran) beserta Laporan Otomatis *Cashflow* dan Laba Rugi.
+
+6. **📈 Analisis & Prediksi AI (`/analytics`)**  
+   Big Data & AI Analytics untuk memprediksi potensi *Top Seller vs Slow Moving*, analisis waktu penjualan terbaik (*Peak Hours/Days*), dan prediksi tren pasar musiman.
+
+7. **💡 Strategi & Rekomendasi AI (`/insights`)**  
+   Konsultan AI pribadi yang memberikan saran tindakan nyata: ide paket bundling produk, strategi promo/diskon, dan kalkulasi penentuan harga optimal.
+
+8. **⚙️ Pengaturan Toko (`/settings`)**  
+   Konfigurasi profil usaha (Nama Toko, Kategori, Lokasi) dan pengaturan integrasi API Key AI.
+
+---
+
+## 🛠️ Tech Stack & Arsitektur
+
+* **Framework:** [Next.js](https://nextjs.org/) (App Router, React 19)
+* **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+* **Icons:** [Lucide React](https://lucide.dev/)
+* **Database & Backend:** [Supabase](https://supabase.com/) (PostgreSQL & Authentication)
+* **AI Engine:** [Groq SDK](https://groq.com/) (`llama-3.3-70b-versatile`)
+* **Deployment:** [Vercel](https://vercel.com/)
+
+---
+
+## ⚡ Panduan Instalasi Lokal (Getting Started)
+
+Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer lokal Anda:
+
+### 1. Clone Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone [https://github.com/username-kamu/smart-umkm.git](https://github.com/username-kamu/smart-umkm.git)
+cd smart-umkm
 ```
+### 2. Install Dependencies
+```Bash
+npm install
+```
+# atau
+```
+yarn install
+```
+# atau
+```
+pnpm install
+```
+### 3. Konfigurasi Environment Variables (.env.local)
+Buat file .env.local di root direktori proyek dan tambahkan API Keys berikut:
+Cuplikan kode
+# Supabase Configuration
+```NEXT_PUBLIC_SUPABASE_URL=[https://your-supabase-project-url.supabase.co](https://your-supabase-project-url.supabase.co)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+# Groq AI Configuration
+```
+NEXT_PUBLIC_GROQ_API_KEY=your-groq-api-key
+```
+### 4. Jalankan Development Server
+```
+npm run dev
+```
+Buka http://localhost:3000 di browser Anda untuk melihat hasilnya.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 📝 Lisensi
+Proyek ini dibuat untuk tujuan portofolio dan edukasi. Dikembangkan oleh Emil Prayoga Albani.
