@@ -111,7 +111,7 @@ Format JSON HARUS array of object seperti ini:
               <option value="Kuliner / Makanan">Kuliner / Makanan</option>
               <option value="Minuman Kekinian">Minuman Kekinian</option>
               <option value="Fashion / Pakaian">Fashion / Pakaian</option>
-              <option value="Jasa Digital / Kreatif">Jasa Digital / Kreatif</option>
+              <option value="IT, Perangkat Lunak & Jasa Digital">IT, Perangkat Lunak & Jasa Digital</option>
               <option value="Agribisnis / Tanaman">Agribisnis / Tanaman</option>
             </select>
           </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabaseClient";
-import { Plus, Package, Edit2, Trash2, X } from "lucide-react";
+import { Plus, Package, Edit2, Trash2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -202,13 +202,12 @@ export default function ProductPage() {
 
         {/* MODAL FORM */}
         {isOpen && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-2xl relative">
               <button
                 onClick={() => setIsOpen(false)}
                 className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-100"
               >
-                <X className="w-5 h-5" />
               </button>
 
               <h2 className="text-lg font-semibold flex items-center gap-2">
