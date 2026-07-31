@@ -158,7 +158,7 @@ Format JSON HARUS persis seperti berikut:
             <div className="space-y-2">
               <h3 className="text-xl font-bold text-neutral-100">Konsultan AI Siap Bekerja</h3>
               <p className="text-sm text-neutral-400   leading-relaxed ">
-                Klik tombol <strong>"Mulai Analisis AI"</strong> di atas untuk memproses data katalog produk milikmu dan membuatkan paket bundling, strategi promo, serta penyesuaian harga.
+                Klik tombol <strong>&quot;Mulai Analisis AI&quot;</strong> di atas untuk memproses data katalog produk milikmu dan membuatkan paket bundling, strategi promo, serta penyesuaian harga.
               </p>
             </div>
           </div>

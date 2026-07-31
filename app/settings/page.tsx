@@ -14,7 +14,7 @@ export default function SettingsPage() {
     const savedName = localStorage.getItem("smartumkm_store_name");
     const savedCategory = localStorage.getItem("smartumkm_store_category");
     const savedLocation = localStorage.getItem("smartumkm_store_location");
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (savedName) setStoreName(savedName);
     if (savedCategory) setCategory(savedCategory);
     if (savedLocation) setLocation(savedLocation);
@@ -77,6 +77,7 @@ export default function SettingsPage() {
               <option value="Pakaian & Fashion">Pakaian & Fashion</option>
               <option value="Toko Kelontong / Retail">Toko Kelontong / Retail</option>
               <option value="Jasa & Service">Jasa & Service</option>
+              <option value="IT / Software & Teknologi">IT / Software & Teknologi</option>
               <option value="Lainnya">Lainnya</option>
             </select>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BarChart3, PieChart as PieIcon } from "lucide-react";
+import { Loader2, BarChart3, PieChart as PieIcon } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -49,7 +49,7 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
   if (loading) {
     return (
       <div className="p-12 text-center text-neutral-500 bg-neutral-900/50 border border-neutral-800 rounded-2xl animate-pulse">
-        Memuat data & grafik dashboard...
+        <p className="flex items-center gap-2  "><Loader2 className="animate-spin w-4 h-4"/>  Memuat data & grafik dashboard...</p>
       </div>
     );
   }

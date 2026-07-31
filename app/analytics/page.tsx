@@ -40,7 +40,10 @@ export default function Analytic() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    const loansProduct = async()=>{
+      fetchProducts();
+    }
+    loansProduct();
   }, []);
 
   // Hitung Kalkulasi
@@ -154,7 +157,7 @@ Gunakan bahasa Indonesia yang profesional, menyemangati, ramah, dan format Markd
               <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider">Total Jenis Produk</span>
               <PackageCheck className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-2xl font-bold text-neutral-100">{totalProducts} item</p>
+            <p className="text-2xl font-bold text-neutral-100">{totalProducts}  Item</p>
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
@@ -162,7 +165,7 @@ Gunakan bahasa Indonesia yang profesional, menyemangati, ramah, dan format Markd
               <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider">Stok Kritis (&le; 5)</span>
               <AlertTriangle className="w-4 h-4 text-amber-400" />
             </div>
-            <p className="text-2xl font-bold text-amber-400">{lowStockProducts.length} produk</p>
+            <p className="text-2xl font-bold text-amber-400">{lowStockProducts.length} Produk</p>
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">

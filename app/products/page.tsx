@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabaseClient";
-import { Plus, Package, Edit2, Trash2 } from "lucide-react";
+import { Plus, Package, Edit2, Trash2, Loader2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -44,7 +44,10 @@ export default function ProductPage() {
   };
 
   useEffect(() => {
-    fetchProduct();
+    const loansProduct = async()=>{
+      fetchProduct();
+    }
+    loansProduct();
   }, []);
 
   const resetForm = () => {
@@ -307,10 +310,12 @@ export default function ProductPage() {
           </h2>
 
           {loading && products.length === 0 ? (
-            <p className="text-sm text-neutral-500 py-4">Memuat data inventaris...</p>
+            <p className="text-sm text-neutral-500 py-4 items-center flex gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Memuat data inventaris...</p>
           ) : products.length === 0 ? (
             <p className="text-sm text-neutral-500 py-8 text-center">
-              Belum ada produk. Klik tombol "Tambah Produk" untuk membuat data pertama Anda!
+              Belum ada produk. Klik tombol &quot;Tambah Produk&quot; untuk membuat data pertama Anda!
             </p>
           ) : (
             <div className="overflow-x-auto">
