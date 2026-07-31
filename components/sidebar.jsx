@@ -16,14 +16,13 @@ import {
 
 
 const menuItems = [
-  { name: "Dashboard", path: "/", icon: LayoutDashboard },
-  // { name: "Ide Usaha", path: "/ideas", icon: Rocket },
+  { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
   { name: "Manajemen Produk", path: "/products", icon: Package },
   { name: "Transaksi Keuangan", path: "/finance", icon: CreditCard },
   { name: "Analisis Prediksi AI", path: "/analytics", icon: TrendingUp },
   { name: "Strategi Promo AI", path: "/insights", icon: Sparkles },
-  // { name: "Laporan Bisnis", path: "/reports", icon: FileText },
-  // { name: "Pengaturan", path: "/settings", icon: Settings },
+  { name: "Ide Usaha", path: "/ideas", icon: Rocket },
+  { name: "Pengaturan", path: "/settings", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -33,15 +32,15 @@ export default function Sidebar() {
   return (
     <>
       {/* 1. HEADER MOBILE + TOMBOL HAMBURGER (Hanya muncul di HP) */}
-      <header className="md:hidden flex items-center justify-between bg-neutral-900 border-b border-neutral-800 p-4 sticky top-0 z-40">
-        <h1 className="text-lg font-bold text-emerald-400">SmartUMKM</h1>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="text-neutral-200 text-2xl focus:outline-none p-1"
-        >
-          {isOpen ? "✕" : "☰"} {/* Berubah ikon X saat terbuka */}
-        </button>
-      </header>
+     <header className="md:hidden flex items-center justify-between h-16 w-full bg-neutral-900 border-b border-neutral-800 px-4 fixed top-0 left-0 z-40">
+  <h1 className="text-lg font-bold text-emerald-400">SmartUMKM</h1>
+  <button
+    onClick={() => setIsOpen(!isOpen)}
+    className="text-neutral-200 text-2xl focus:outline-none p-1"
+  >
+    {isOpen ? "✕" : "☰"}
+  </button>
+</header>
 
       {/* 2. OVERLAY GELAP (Di HP: Layar belakang jadi agak gelap saat menu terbuka) */}
       {isOpen && (
@@ -53,7 +52,7 @@ export default function Sidebar() {
 
       {/* 3. SIDEBAR UTAMA (Desktop: Selalu Tampak | Mobile: Slide-In) */}
       <aside
-        className={`fixed md:sticky top-0 left-0 h-screen w-64 bg-neutral-900 border-r border-neutral-800 p-6 z-50 transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-screen w-64 bg-neutral-900 border-r border-neutral-800 p-6 z-50 transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >

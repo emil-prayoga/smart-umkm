@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabaseClient";
-import { Sparkles, RefreshCw, TrendingUp, AlertTriangle, DollarSign, PackageCheck } from "lucide-react";
+import { Sparkles, RefreshCw, TrendingUp, AlertTriangle, DollarSign, PackageCheck, Flame, TrendingDown } from "lucide-react";
 import Groq from "groq-sdk";
 
 interface Product {
@@ -22,7 +22,7 @@ export default function Analytic() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiRecommendation, setAiRecommendation] = useState<string | null>(null);
 
-  // Fetch Data Produk untuk Diberikan ke AI & Ditampilkan di Dashboard
+  // Fetch Data Produk untuk AI & Dashboard
   const fetchProducts = async () => {
     try {
       const { data, error } = await supabase
@@ -39,20 +39,21 @@ export default function Analytic() {
     }
   };
 
-    useEffect(() => {
-    const loadProducts = async () => {
-      await fetchProducts();
-    };
-  loadProducts();
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
-  // Hitung Kalkulasi Sederhana
+  // Hitung Kalkulasi
   const totalProducts = products.length;
   const lowStockProducts = products.filter((p) => p.stock <= 5);
   const totalValue = products.reduce((acc, p) => acc + p.price * p.stock, 0);
   const totalPotentialProfit = products.reduce((acc, p) => acc + (p.price - p.cost_price) * p.stock, 0);
 
-  // Handle Analisis AI
+  // Mengurutkan produk berdasarkan potensi laba/margin untuk analisis visual
+  const topProfitProducts = [...products].sort((a, b) => (b.price - b.cost_price) - (a.price - a.cost_price)).slice(0, 3);
+  const lowMarginProducts = [...products].sort((a, b) => (a.price - a.cost_price) - (b.price - b.cost_price)).slice(0, 3);
+
+  // Handle Analisis AI Sesuai Kriteria #6
   const handleGetAiInsight = async () => {
     if (products.length === 0) {
       alert("Belum ada data produk di database untuk dianalisis!");
@@ -71,7 +72,6 @@ export default function Analytic() {
 
       const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
 
-      // Rangkum data ringkas agar token hemat & respon AI tajam
       const summaryData = {
         total_jenis_produk: totalProducts,
         produk_stok_kritis: lowStockProducts.map((p) => ({ nama: p.name, sisa_stok: p.stock })),
@@ -79,22 +79,28 @@ export default function Analytic() {
           nama: p.name,
           kategori: p.category,
           harga_jual: p.price,
+          hpp: p.cost_price,
           laba_per_unit: p.price - p.cost_price,
           stok: p.stock,
         })),
       };
 
+      // PROMPT DISESUAIKAN DENGAN KRITERIA FITUR NO. 6
       const prompt = `
-Kamu adalah Konsultan & Data Analyst Bisnis UMKM. 
-Berikut adalah ringkasan data inventaris toko saat ini:
+Kamu adalah Konsultan Business Intelligence & Data Analyst Senior untuk UMKM Indonesia.
+Berikut data inventaris dan produk toko saat ini:
 ${JSON.stringify(summaryData, null, 2)}
 
-Berikan "Analisis & Prediksi Bisnis" yang mencakup:
-1. **Prediksi Restock & Stok Kritis**: Peringatan untuk produk yang hampir habis dan estimasi risiko kerugian jika tidak segera diproduksi/direstock.
-2. **Analisis Profitabilitas**: Mana produk yang memberi margin laba terbesar dan layak di-push pemasarannya.
-3. **Rekomendasi Bundling/Promo**: Usulan paket bundling antar produk untuk menghabiskan stok lambat atau meningkatkan rata-rata nilai transaksi.
+Berdasarkan data di atas dan karakteristik kategori bisnis produk tersebut, berikan **"Analisis & Prediksi AI Masa Depan"** yang mencakup 3 poin utama berikut:
 
-Gunakan bahasa Indonesia yang ramah, profesional, dan gunakan format Markdown (bullet points / bold) yang rapi.
+1. **Analisis Produk Terlaris vs Kurang Diminati**:
+   - Prediksikan produk mana yang berpotensi menjadi 'Top Seller' (berdasarkan margin laba & perputaran stok) vs produk yang kemungkinan 'Slow-moving' (kurang diminati).
+2. **Prediksi Waktu Penjualan Terbaik (Peak Hours & Peak Days)**:
+   - Berikan rekomendasi/analisis jam dan hari terramai yang ideal untuk menggenjot penjualan produk-produk kategori tersebut (misal: jam makan siang, akhir pekan, dll).
+3. **Prediksi Tren Pasar Musiman (Big Data Trend)**:
+   - Berikan proyeksi tren pasar dalam 1-3 bulan ke depan terkait kategori produk yang dijual (misal: pengaruh musim hujan/kemarau, momen gajian, hari libur nasional, atau tren sosial media).
+
+Gunakan bahasa Indonesia yang profesional, menyemangati, ramah, dan format Markdown (bullet points / bold) yang sangat rapi.
       `;
 
       const completion = await groq.chat.completions.create({
@@ -113,29 +119,31 @@ Gunakan bahasa Indonesia yang ramah, profesional, dan gunakan format Markdown (b
   };
 
   return (
-    <main className="bg-neutral-950 text-neutral-100 p-6 min-h-screen">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <main className="bg-neutral-950 text-neutral-100 p-4 sm:p-6 md:p-8 min-h-screen md:p-8">
+      <div className="min-h-screen mx-auto space-y-8">
         
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-emerald-400">Analisis Prediksi AI</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400">
+              Analisis & Prediksi AI
+            </h1>
             <p className="text-neutral-400 text-sm mt-1">
-              Dapatkan estimasi risiko stok, proyeksi keuntungan, dan saran strategi otomatis.
+              Proyeksi performa produk, waktu penjualan terbaik, dan analisis tren pasar berbasis AI.
             </p>
           </div>
 
           <button
             onClick={handleGetAiInsight}
             disabled={aiLoading || loading}
-            className="w-fit flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40 cursor-pointer"
+            className="w-fit flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40 cursor-pointer"
           >
             {aiLoading ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
             ) : (
               <Sparkles className="w-4 h-4 fill-neutral-950" />
             )}
-            {aiLoading ? "Menganalisis Data..." : "Jalankan Analisis AI"}
+            {aiLoading ? "Menganalisis Tren..." : "Jalankan Prediksi AI"}
           </button>
         </div>
 
@@ -143,7 +151,7 @@ Gunakan bahasa Indonesia yang ramah, profesional, dan gunakan format Markdown (b
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
             <div className="flex items-center justify-between text-neutral-400">
-              <span className="text-xs font-medium">Total Produk</span>
+              <span className="text-xs font-medium">Total Jenis Produk</span>
               <PackageCheck className="w-4 h-4 text-emerald-400" />
             </div>
             <p className="text-2xl font-bold text-neutral-100">{totalProducts} <span className="text-xs font-normal text-neutral-400">item</span></p>
@@ -178,11 +186,11 @@ Gunakan bahasa Indonesia yang ramah, profesional, dan gunakan format Markdown (b
           </div>
         </div>
 
-        {/* KARTU HASIL AI INSIGHT */}
+        {/* SECTION HASIL AI INSIGHT */}
         {aiRecommendation && (
           <div className="bg-gradient-to-br from-neutral-900 via-neutral-900 to-emerald-950/40 border border-emerald-500/40 p-6 rounded-2xl space-y-4 shadow-xl">
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg border-b border-neutral-800 pb-3">
-              <Sparkles className="w-5 h-5" /> Hasil Prediksi & Rekomendasi Strategi AI
+              <Sparkles className="w-5 h-5" /> Hasil Prediksi & Analisis Pasar AI
             </div>
             <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-line font-sans">
               {aiRecommendation}
@@ -190,10 +198,55 @@ Gunakan bahasa Indonesia yang ramah, profesional, dan gunakan format Markdown (b
           </div>
         )}
 
-        {/* TABEL STOK KRITIS (PERINGATAN) */}
+        {/* TOP SELLER VS SLOW MOVING (FITUR NO. 6) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Produk Potensi Margin Tinggi (Top Seller Candidate) */}
+          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
+            <h3 className="text-base font-semibold flex items-center gap-2 text-emerald-400">
+              <Flame className="w-5 h-5" /> Produk Margin Laba Tertinggi
+            </h3>
+            <div className="space-y-3">
+              {topProfitProducts.map((p) => (
+                <div key={p.id} className="flex justify-between items-center p-3 bg-neutral-950/60 rounded-xl border border-neutral-800/80">
+                  <div>
+                    <p className="text-sm font-medium text-neutral-200">{p.name}</p>
+                    <p className="text-xs text-neutral-500">{p.category}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-emerald-400">+Rp {(p.price - p.cost_price).toLocaleString("id-ID")}</p>
+                    <p className="text-[10px] text-neutral-400">Margin / Unit</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Produk Margin Rendah / Perlu Perhatian */}
+          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
+            <h3 className="text-base font-semibold flex items-center gap-2 text-amber-400">
+              <TrendingDown className="w-5 h-5" /> Produk Margin Tipis
+            </h3>
+            <div className="space-y-3">
+              {lowMarginProducts.map((p) => (
+                <div key={p.id} className="flex justify-between items-center p-3 bg-neutral-950/60 rounded-xl border border-neutral-800/80">
+                  <div>
+                    <p className="text-sm font-medium text-neutral-200">{p.name}</p>
+                    <p className="text-xs text-neutral-500">{p.category}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-amber-400">+Rp {(p.price - p.cost_price).toLocaleString("id-ID")}</p>
+                    <p className="text-[10px] text-neutral-400">Margin / Unit</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* TABEL STOK KRITIS */}
         <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2 text-neutral-100">
-            <AlertTriangle className="w-5 h-5 text-amber-400" /> Perhatian: Produk Perlu Di-restock
+            <AlertTriangle className="w-5 h-5 text-amber-400" /> Peringatan Stok Kritis (Restock Urgent)
           </h2>
 
           {loading ? (

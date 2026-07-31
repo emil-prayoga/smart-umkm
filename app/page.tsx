@@ -1,138 +1,73 @@
 "use client";
+import Link from "next/link";
+import { Sparkles, Rocket, LayoutDashboard, ArrowRight, Store } from "lucide-react";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/src/lib/supabaseClient";
-import { Package, DollarSign, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
-import AnalyticsCard from "@/components/AnalyticsCard"; // Import komponen grafik
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  cost_price: number;
-  stock: number;
-}
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-};
-
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch Data Produk dari Supabase
-  const fetchProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching products:", error);
-      } else {
-        setProducts(data || []);
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-    useEffect(() => {
-    const loadProducts = async () => {
-      await fetchProducts();
-    };
-  loadProducts();
-  }, []);
-
-  // Kalkulasi statistik
-  const totalJenisProduk = products.length;
-  const totalModal = products.reduce((acc, item) => acc + item.cost_price * item.stock, 0);
-  const totalEstimasiLaba = products.reduce((acc, item) => {
-    const labaPerUnit = item.price - item.cost_price;
-    return acc + labaPerUnit * item.stock;
-  }, 0);
-
+export default function OnboardingPage() {
   return (
-    <main className="bg-neutral-950 text-neutral-100 min-h-screen p-4 sm:p-6 md:p-8">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-7xl mx-auto space-y-8"
-      >
-        {/* HEADER */}
-        <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400">
-              Dashboard
-            </h1>
-            <p className="text-neutral-400 text-sm mt-1">
-              Ringkasan performa inventaris dan estimasi potensi keuntungan usaha Anda.
-            </p>
+    <main className="bg-neutral-950 text-neutral-100 min-h-screen flex items-center justify-center p-6">
+      <div className="max-w-4xl w-full space-y-10 text-center">
+        {/* HERO HEADER */}
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <Sparkles className="w-4 h-4" /> Platform Pintar UMKM Berbasis AI
           </div>
-        </motion.div>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-neutral-100">
+            Kelola & Kembangkan Bisnis dengan <span className="text-emerald-400">SmartUMKM</span>
+          </h1>
+          <p className="text-neutral-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+            Pilih alur sesuai kondisimu saat ini. Apakah kamu baru ingin mulai belajar bisnis atau sudah memiliki usaha berjalan?
+          </p>
+        </div>
 
-        {/* RINGKASAN STATISTIK */}
-        <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {/* Kartu 1: Total Produk */}
-          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2  transition-colors">
-            <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
-              Total Jenis Produk
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-bold text-neutral-100">
-                {totalJenisProduk} Item
-              </span>
-              <Package className="w-8 h-8 text-emerald-400/80" />
+        {/* PILIHAN ALUR */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+          {/* PILIHAN 1: PEMULA */}
+          <Link
+            href="/ideas"
+            className="group bg-neutral-900 border border-neutral-800 hover:border-emerald-500/50 rounded-3xl p-8 space-y-6 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-950/30 flex flex-col justify-between"
+          >
+            <div className="space-y-4">
+              <div className="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                <Rocket className="w-7 h-7" />
+              </div>
+              <h2 className="text-2xl font-bold text-neutral-100">
+                Saya Ingin Memulai Usaha <span className="text-xs text-emerald-400 font-normal px-2 py-0.5 bg-emerald-500/10 rounded-md border border-emerald-500/20">Pemula</span>
+              </h2>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                Belum punya produk/usaha? Dapatkan ide bisnis kreatif, perkiraan modal, dan analisis kompetitor lokal secara instan dengan panduan AI.
+              </p>
             </div>
-          </div>
 
-          {/* Kartu 2: Total Modal */}
-          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2  transition-colors">
-            <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
-              Total Nilai Inventaris (Modal)
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-bold text-neutral-100">
-                Rp {totalModal.toLocaleString("id-ID")}
-              </span>
-              <DollarSign className="w-8 h-8 text-teal-400/80" />
+            <div className="pt-6 border-t border-neutral-800/60 flex items-center justify-between text-emerald-400 text-sm font-bold">
+              <span>Cari Ide Usaha AI</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </div>
-          </div>
+          </Link>
 
-          {/* Kartu 3: Estimasi Laba */}
-          <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2 sm:col-span-2 lg:col-span-1  transition-colors">
-            <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
-              Estimasi Potensi Laba
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-bold text-emerald-400">
-                Rp {totalEstimasiLaba.toLocaleString("id-ID")}
-              </span>
-              <TrendingUp className="w-8 h-8 text-emerald-400" />
+          {/* PILIHAN 2: SUDAH PUNYA USAHA */}
+          <Link
+            href="/dashboard"
+            className="group bg-neutral-900 border border-neutral-800 hover:border-emerald-500/50 rounded-3xl p-8 space-y-6 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-950/30 flex flex-col justify-between"
+          >
+            <div className="space-y-4">
+              <div className="w-14 h-14 bg-teal-500/10 text-teal-400 rounded-2xl flex items-center justify-center border border-teal-500/20 group-hover:scale-110 transition-transform">
+                <Store className="w-7 h-7" />
+              </div>
+              <h2 className="text-2xl font-bold text-neutral-100">
+                Saya Sudah Punya Usaha <span className="text-xs text-teal-400 font-normal px-2 py-0.5 bg-teal-500/10 rounded-md border border-teal-500/20">Eksis</span>
+              </h2>
+              <p className="text-xs text-neutral-400 leading-relaxed">
+                Langsung masuk ke pusat kendali: kelola produk, catat arus kas harian, dan dapatkan strategi promo serta rekomendasi harga otomatis.
+              </p>
             </div>
-          </div>
-        </motion.div>
 
-        {/* SECTION GRAFIK / DIAGRAM (Dipanggil dari komponen terpisah) */}
-        <AnalyticsCard products={products} loading={loading} />
-
-      </motion.div>
+            <div className="pt-6 border-t border-neutral-800/60 flex items-center justify-between text-teal-400 text-sm font-bold">
+              <span>Buka Dashboard Utama</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

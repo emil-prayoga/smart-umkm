@@ -1,10 +1,14 @@
-import Sidebar from "@/components/sidebar";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import LayoutWrapper from "@/components/LayoutWrapper";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
+export const metadata = {
+  title: "SmartUMKM - Platform Bisnis Berbasis AI",
+  description: "Asisten & Konsultan Bisnis Pintar untuk UMKM",
+};
 
 export default function RootLayout({
   children,
@@ -12,18 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={cn("font-sans", geist.variable)}>
-      <body className="bg-neutral-950 text-neutral-100 min-h-screen m-0 p-0 antialiased">
-        {/* Container Utama: Pakai min-h-screen agar Sidebar ditarik penuh sampai bawah */}
-        <div className="flex flex-col md:flex-row min-h-screen w-full">
-          {/* Sidebar */}
-          <Sidebar />
-
-          {/* Area Konten Utama */}
-          <main className="flex-1 p-4 md:p-8 overflow-y-auto bg-neutral-950">
-            {children}
-          </main>
-        </div>
+    <html lang="id" className={cn("dark", geist.variable)}>
+      <body className="bg-neutral-950 text-neutral-100 antialiased font-sans">
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );

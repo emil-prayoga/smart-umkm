@@ -122,8 +122,8 @@ Format JSON HARUS persis seperti berikut:
   };
 
   return (
-    <main className="bg-neutral-950 text-neutral-100 p-6 min-h-screen">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <main className="bg-neutral-950 text-neutral-100 p-6 min-h-screen md:p-8">
+      <div className="min-h-screen mx-auto space-y-8">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
           <div>

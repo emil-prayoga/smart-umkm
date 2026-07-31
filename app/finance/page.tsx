@@ -104,7 +104,7 @@ export default function FinancePage() {
   const netBalance = totalIncome - totalExpense;
 
   return (
-    <main className="bg-neutral-950 text-neutral-100 p-6 min-h-screen">
+    <main className="bg-neutral-950 text-neutral-100 p-6 min-h-screen md:p-8">
       <div className="min-h-screen mx-auto space-y-8">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
@@ -120,7 +120,7 @@ export default function FinancePage() {
           {/* TOMBOL PEMICU MODAL */}
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-fit flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-emerald-500/10 cursor-pointer text-sm"
+            className="w-fit text-center flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-950/40"
           >
             <Plus className="w-4 h-4" /> Catat Transaksi
           </button>
