@@ -21,7 +21,7 @@ const menuItems = [
   { name: "Manajemen Produk", path: "/products", icon: Package },
   { name: "Transaksi Keuangan", path: "/finance", icon: CreditCard },
   { name: "Analisis Prediksi AI", path: "/analytics", icon: TrendingUp },
-  // { name: "Strategi Promo AI", path: "/insights", icon: Sparkles },
+  { name: "Strategi Promo AI", path: "/insights", icon: Sparkles },
   // { name: "Laporan Bisnis", path: "/reports", icon: FileText },
   // { name: "Pengaturan", path: "/settings", icon: Settings },
 ];
@@ -83,9 +83,9 @@ export default function Sidebar() {
                 key={item.path}
                 href={item.path}
                 onClick={() => setIsOpen(false)} // Otomatis tutup menu saat diklik di HP
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                   isActive
-                    ? "bg-emerald-500 text-neutral-950 font-bold"
+                    ? "bg-emerald-500  text-neutral-950"
                     : "text-neutral-400 hover:bg-neutral-800 hover:text-white"
                 }`}
               >

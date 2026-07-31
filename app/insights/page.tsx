@@ -1,126 +1,106 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import {
+  Sparkles,
+  Zap,
+  TrendingUp,
+  PackageCheck,
+  Lightbulb,
+  Loader2,
+  RefreshCw,
+  Play,
+} from "lucide-react";
 import { supabase } from "@/src/lib/supabaseClient";
-import { Plus, Package, Sparkles, RefreshCw } from "lucide-react";
 import Groq from "groq-sdk";
 
-///typescript
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  cost_price: number;
-  stock: number;
+export interface AIRecommendation {
+  bundling: {
+    title: string;
+    description: string;
+    suggestedPrice: string;
+  };
+  promo: {
+    title: string;
+    strategy: string;
+    targetDays: string;
+  };
+  pricing: {
+    title: string;
+    advice: string;
+  };
 }
 
-export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function InsightsPage() {
+  const [loading, setLoading] = useState(false);
+  const [hasAnalyzed, setHasAnalyzed] = useState(false); // Flag penanda apakah user sudah tekan tombol
+  const [productsCount, setProductsCount] = useState<number | null>(null);
+  const [recommendation, setRecommendation] = useState<AIRecommendation | null>(null);
 
-  // State untuk Form Input
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [price, setPrice] = useState("");
-  const [costPrice, setCostPrice] = useState("");
-  const [stock, setStock] = useState("");
+  // Fungsi yang HANYA berjalan saat tombol diklik
+  const handleGenerateInsights = async () => {
+    setLoading(true);
+    setHasAnalyzed(true);
 
-  // State untuk AI Recommendation
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiRecommendation, setAiRecommendation] = useState<string | null>(null);
-
-  // Fetch Data Produk
-  const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
+      // 1. Fetch produk dari Supabase
+      const { data: products, error } = await supabase.from("products").select("*");
 
       if (error) {
         console.error("Error fetching products:", error);
-      } else {
-        setProducts(data || []);
-      }
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const loadProducts = async () => {
-      await fetchProducts();
-    };
-  loadProducts();
-  }, []);
-
-  const handleDeleteProduct = (idYangMauDihapus:string) =>{
-    const updateProduct = products.filter((item) => item.id !== idYangMauDihapus);
-    setProducts(updateProduct);
-  };
-
-  // Handle Tambah Produk Baru
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !price || !costPrice) return alert("Mohon isi field yang wajib!");
-
-    setLoading(true);
-    const { error } = await supabase.from("products").insert([
-      {
-        name,
-        category: category || "Umum",
-        price: Number(price),
-        cost_price: Number(costPrice),
-        stock: Number(stock) || 0,
-      },
-    ]);
-
-    if (error) {
-      alert("Gagal menambah produk: " + error.message);
-      setLoading(false);
-    } else {
-      setName("");
-      setCategory("");
-      setPrice("");
-      setCostPrice("");
-      setStock("");
-      fetchProducts();
-    }
-  };
-
-  // Handle Panggilan AI Copilot (Langsung via Groq SDK di Client)
-  const handleGetAiInsight = async () => {
-    if (products.length === 0) {
-      alert("Tambahkan minimal 1 produk terlebih dahulu!");
-      return;
-    }
-
-    setAiLoading(true);
-    try {
-      const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
-
-      if (!apiKey) {
-        alert("API Key Groq tidak ditemukan! Pastikan ada NEXT_PUBLIC_GROQ_API_KEY di .env.local");
-        setAiLoading(false);
+        setLoading(false);
         return;
       }
 
-      // Inisialisasi Groq client ( dangerouslyAllowBrowser wajib dipakai kalau di page.jsx )
+      const productList = products || [];
+      setProductsCount(productList.length);
+
+      if (productList.length === 0) {
+        setRecommendation(null);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Panggil API Groq
+      const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY;
+      if (!apiKey) {
+        alert("API Key Groq tidak ditemukan di .env.local!");
+        setLoading(false);
+        return;
+      }
+
       const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
 
+      const summaryData = productList.map((p) => ({
+        nama: p.name,
+        kategori: p.category,
+        harga_jual: p.price,
+        modal_hpp: p.cost_price,
+        stok: p.stock,
+      }));
+
       const prompt = `
-Kamu adalah Konsultan Bisnis UMKM. Berikan 3-4 saran strategi bisnis singkat berbasis data produk berikut:
-${JSON.stringify(products, null, 2)}
+Kamu adalah Konsultan Bisnis UMKM. Berdasarkan data produk berikut:
+${JSON.stringify(summaryData, null, 2)}
 
-Fokus pada:
-1. Margin keuntungan (Laba per unit).
-2. Ide paket promo bundling produk.
-3. Tips meningkatkan omzet & stok.
-
-Gunakan bahasa Indonesia yang ramah dan format poin-poin yang mudah dibaca.
+Berikan rekomendasi strategi bisnis nyata dalam format JSON murni TANPA MARKDOWN BACKTICKS (tanpa \`\`\`json).
+Format JSON HARUS persis seperti berikut:
+{
+  "bundling": {
+    "title": "Nama Paket Bundling (contoh dari nama produk asli)",
+    "description": "Alasan singkat kenapa 2 produk ini cocok dibundling",
+    "suggestedPrice": "Rp xx.xxx"
+  },
+  "promo": {
+    "title": "Nama Strategi Promo",
+    "strategy": "Penjelasan eksekusi promo untuk mendongkrak penjualan",
+    "targetDays": "Hari/Jam yang cocok untuk promo"
+  },
+  "pricing": {
+    "title": "Evaluasi Margin / Harga Optimal",
+    "advice": "Saran penyesuaian harga atau penghematan HPP berdasarkan produk yang ada"
+  }
+}
       `;
 
       const completion = await groq.chat.completions.create({
@@ -128,179 +108,173 @@ Gunakan bahasa Indonesia yang ramah dan format poin-poin yang mudah dibaca.
         model: "llama-3.3-70b-versatile",
       });
 
-      const reply =
-        completion.choices[0]?.message?.content ||
-        "Gagal mendapatkan hasil dari AI.";
+      const replyText = completion.choices[0]?.message?.content || "";
+      const cleanJson = replyText.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsedData: AIRecommendation = JSON.parse(cleanJson);
 
-      setAiRecommendation(reply);
+      setRecommendation(parsedData);
     } catch (err) {
-      console.error("Groq Error:", err);
-      alert("Gagal menghubungi AI Assistant.");
+      console.error("Error generating insights:", err);
+      alert("Gagal memproses rekomendasi AI.");
     } finally {
-      setAiLoading(false);
+      setLoading(false);
     }
   };
+
   return (
-    <main className="bg-neutral-950 text-neutral-100 p-6  ">
-      <div className=" mx-auto min-h-screen  space-y-8">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-emerald-400">SmartUMKM Dashboard</h1>
-          <p className="text-neutral-400 text-sm mt-1">
-            Kelola data inventaris & dapatkan analisis strategi bisnis berbasis AI.
-          </p>
-        </div>
-
-        <button
-          onClick={handleGetAiInsight}
-          disabled={aiLoading}
-          className="flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40"
-        >
-          {aiLoading ? (
-            <RefreshCw className="w-4 h-4 animate-spin" />
-          ) : (
-            <Sparkles className="w-4 h-4 fill-neutral-950" />
-          )}
-          {aiLoading ? "Menganalisis Data..." : "Analisis Bisnis dengan AI"}
-        </button>
-      </div>
-
-      {/* KARTU HASIL AI INSIGHT */}
-      {aiRecommendation && (
-        <div className="bg-linear-to-br from-neutral-900 to-emerald-950/30 border border-emerald-500/30 p-6 rounded-2xl space-y-3 relative overflow-hidden">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg">
-            <Sparkles className="w-5 h-5" /> Rekomendasi Konsultan AI:
+    <main className="bg-neutral-950 text-neutral-100 p-6 min-h-screen">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-emerald-400 flex items-center gap-2.5">
+              Strategi & Rekomendasi AI
+            </h1>
+            <p className="text-neutral-400 text-sm mt-1">
+              Konsultan bisnis pribadi AI yang menganalisis data produk & keuanganmu untuk memberikan aksi nyata.
+            </p>
           </div>
-          <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-line">
-            {aiRecommendation}
+
+          <button
+            onClick={handleGenerateInsights}
+            disabled={loading}
+            className="w-fit flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all text-sm hover:opacity-90 cursor-pointer disabled:opacity-50 shadow-lg shadow-emerald-950/40"
+          >
+            {loading ? (
+              <RefreshCw className="w-4 h-4 animate-spin text-neutral-950" />
+            ) : (
+              <Play className="w-4 h-4 fill-neutral-950 text-neutral-950" />
+            )}
+            {loading ? "Menganalisis..." : hasAnalyzed ? "Analisis Ulang" : "Mulai Analisis AI"}
+          </button>
+        </div>
+
+        {/* TAMPILAN AWAL (SEBELUM USER TEKAN TOMBOL) */}
+        {!hasAnalyzed && !loading && (
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-12 text-center space-y-4  mx-auto">
+            <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/20">
+              <Sparkles className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-neutral-100">Konsultan AI Siap Bekerja</h3>
+              <p className="text-sm text-neutral-400   leading-relaxed ">
+                Klik tombol <strong>"Mulai Analisis AI"</strong> di atas untuk memproses data katalog produk milikmu dan membuatkan paket bundling, strategi promo, serta penyesuaian harga.
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <div className="lg:col-span-4 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Plus className="w-5 h-5 text-emerald-400" /> Tambah Produk Baru
-          </h2>
-
-          <form onSubmit={handleAddProduct} className="space-y-3">
+        {/* LOADING STATE */}
+        {loading && (
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-12 text-center space-y-4">
+            <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mx-auto" />
             <div>
-              <label className="text-xs text-neutral-400">Nama Produk *</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Contoh: Kopi Susu Aren"
-                className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-              />
+              <h3 className="text-lg font-semibold text-neutral-200">
+                Konsultan AI Sedang Merancang Strategi...
+              </h3>
+              <p className="text-xs text-neutral-500 mt-1">
+                Membaca katalog produk, HPP, dan struktur harga dari database milikmu.
+              </p>
             </div>
+          </div>
+        )}
 
-            <div>
-              <label className="text-xs text-neutral-400">Kategori</label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Minuman / Makanan"
-                className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-              />
-            </div>
+        {/* JIKA SUDAH DIANALISIS TAPI PRODUK KOSONG */}
+        {hasAnalyzed && !loading && productsCount === 0 && (
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 text-center space-y-3">
+            <Lightbulb className="w-10 h-10 text-amber-400 mx-auto" />
+            <h3 className="text-lg font-semibold text-neutral-200">Belum Ada Data Produk</h3>
+            <p className="text-xs text-neutral-400 max-w-md mx-auto">
+              AI membutuhkan data produk di menu <strong>Manajemen Produk (/products)</strong> agar bisa merancang paket bundling dan promo secara presisi.
+            </p>
+          </div>
+        )}
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-neutral-400">Harga Jual (Rp) *</label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="15000"
-                  className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-                />
+        {/* JIKA SUDAH DIANALISIS DAN BERHASIL DAPAAT HASIL */}
+        {hasAnalyzed && !loading && productsCount! > 0 && recommendation && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* CARD 1: BUNDLING */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
+                    <PackageCheck className="w-6 h-6" />
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md">
+                    Saran Bundling
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-neutral-100">
+                  {recommendation.bundling?.title || "Paket Hemat"}
+                </h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  {recommendation.bundling?.description}
+                </p>
               </div>
-              <div>
-                <label className="text-xs text-neutral-400">Modal / HPP (Rp) *</label>
-                <input
-                  type="number"
-                  value={costPrice}
-                  onChange={(e) => setCostPrice(e.target.value)}
-                  placeholder="8000"
-                  className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-                />
+
+              <div className="pt-4 border-t border-neutral-800 space-y-2">
+                <p className="text-xs text-neutral-500">Rekomendasi Harga Paket:</p>
+                <p className="text-2xl font-extrabold text-emerald-400">
+                  {recommendation.bundling?.suggestedPrice}
+                </p>
               </div>
             </div>
 
-            <div>
-              <label className="text-xs text-neutral-400">Stok Awal</label>
-              <input
-                type="number"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                placeholder="50"
-                className="w-full mt-1 px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-neutral-100"
-              />
+            {/* CARD 2: PROMO */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl">
+                    <Zap className="w-6 h-6" />
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-md">
+                    Strategi Promo
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-neutral-100">
+                  {recommendation.promo?.title}
+                </h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  {recommendation.promo?.strategy}
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-neutral-800 space-y-2">
+                <p className="text-xs text-neutral-500">Target Waktu Efektif:</p>
+                <p className="text-sm font-semibold text-blue-400">
+                  {recommendation.promo?.targetDays}
+                </p>
+              </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2.5 mt-2 bg-emerald-500 text-neutral-950 font-semibold rounded-xl text-sm hover:bg-emerald-400 transition-colors disabled:opacity-50"
-            >
-              {loading ? "Menyimpan..." : "Simpan Produk"}
-            </button>
-          </form>
-        </div>
+            {/* CARD 3: PRICING */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl">
+                    <TrendingUp className="w-6 h-6" />
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md">
+                    Pricing & Margin
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-neutral-100">
+                  {recommendation.pricing?.title}
+                </h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  {recommendation.pricing?.advice}
+                </p>
+              </div>
 
-        {/* TABEL LIST PRODUK */}
-        <div className="lg:col-span-8 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Package className="w-5 h-5 text-emerald-400" /> Daftar Inventaris Produk
-          </h2>
-
-          {loading && products.length === 0 ? (
-            <p className="text-sm text-neutral-500">Memuat data...</p>
-          ) : products.length === 0 ? (
-            <p className="text-sm text-neutral-500 py-8 text-center">Belum ada produk. Tambahkan produk pertamamu!</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-neutral-300">
-                <thead className="border-b border-neutral-800 text-xs text-neutral-500 uppercase">
-                  <tr>
-                    <th className="py-3 px-2">Nama</th>
-                    <th className="py-3 px-2">Kategori</th>
-                    <th className="py-3 px-2">Harga Jual</th>
-                    <th className="py-3 px-2">Laba/Unit</th>
-                    <th className="py-3 px-2">Stok</th>
-                    <th className="py-3 px-2"> Aksi </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-800/50">
-                  {products.map((item) => (
-                    <tr key={item.id} className="hover:bg-neutral-800/30 transition-colors">
-                      <td className="py-3 px-2 font-medium text-neutral-100">{item.name}</td>
-                      <td className="py-3 px-2 text-neutral-400">{item.category}</td>
-                      <td className="py-3 px-2">Rp {item.price.toLocaleString("id-ID")}</td>
-                      <td className="py-3 px-2 text-emerald-400">
-                        Rp {(item.price - item.cost_price).toLocaleString("id-ID")}
-                      </td>
-                      <td className="py-3 px-2">{item.stock}</td>
-                      <td className="py-3 px-2">
-                      <div className="inline-block">
-                        <button
-                          onClick={() => handleDeleteProduct(item.id)}
-                          className="w-16 py-2.5 mt-2 bg-emerald-500 text-neutral-950 font-semibold rounded-xl text-sm hover:bg-emerald-400 transition-colors disabled:opacity-50">
-                            Hapus
-                        </button>
-                      </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="pt-4 border-t border-neutral-800 space-y-2">
+                <p className="text-xs text-neutral-500">Status Margin:</p>
+                <p className="text-sm font-semibold text-amber-400">
+                  Rekomendasi AI
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
       </div>
     </main>
   );
