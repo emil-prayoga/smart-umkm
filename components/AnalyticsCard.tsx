@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Loader2, BarChart3, PieChart as PieIcon } from "lucide-react";
 import {
   BarChart,
@@ -33,14 +32,12 @@ interface AnalyticsCardProps {
 const COLORS = ["#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
 
 export default function AnalyticsCard({ products, loading }: AnalyticsCardProps) {
-  // Data olahan untuk Grafik Bar
   const chartData = products.map((item) => ({
     name: item.name,
     Modal: item.cost_price * item.stock,
     PotensiLaba: (item.price - item.cost_price) * item.stock,
   }));
 
-  // Data olahan untuk Pie Chart
   const stockPieData = products.map((item) => ({
     name: item.name,
     value: item.stock,
@@ -48,8 +45,9 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-neutral-500 bg-neutral-900/50 border border-neutral-800 rounded-2xl animate-pulse">
-        <p className="flex items-center gap-2  "><Loader2 className="animate-spin w-4 h-4"/>  Memuat data & grafik dashboard...</p>
+      <div className="p-12 text-center text-neutral-500 bg-neutral-900/50 border border-neutral-800 rounded-2xl animate-pulse flex items-center justify-center gap-2">
+        <Loader2 className="animate-spin w-4 h-4" />
+        <span>Memuat data & grafik dashboard...</span>
       </div>
     );
   }
@@ -63,12 +61,7 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-    >
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* GRAFIK 1: BAR CHART */}
       <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-sm">
         <div className="flex items-center gap-2 border-b border-neutral-800 pb-4">
@@ -164,6 +157,6 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
           </ResponsiveContainer>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
