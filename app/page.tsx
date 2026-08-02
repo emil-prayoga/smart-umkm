@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Sparkles, Rocket, LayoutDashboard, ArrowRight, Store } from "lucide-react";
+import { Sparkles, Rocket, ArrowRight, Store } from "lucide-react";
 
 export default function OnboardingPage() {
   return (

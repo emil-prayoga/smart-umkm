@@ -122,7 +122,7 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
           <button
             onClick={handleGetAiInsight}
             disabled={aiLoading}
-            className="w-fit flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40 cursor-pointer"
+            className="w-fit flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-950/40 cursor-pointer"
           >
             {aiLoading ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -182,7 +182,7 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
 
         {/* HASIL AI INSIGHT */}
         {aiRecommendation && (
-          <div className="bg-gradient-to-br from-neutral-900 via-neutral-900 to-emerald-950/40 border border-emerald-500/40 p-6 rounded-2xl space-y-4 shadow-xl animate-in fade-in duration-300">
+          <div className="bg-linear-to-br from-neutral-900 via-neutral-900 to-emerald-950/40 border border-emerald-500/40 p-6 rounded-2xl space-y-4 shadow-xl animate-in fade-in duration-300">
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg border-b border-neutral-800 pb-3">
               <Sparkles className="w-5 h-5" /> Hasil Prediksi & Analisis Pasar AI
             </div>

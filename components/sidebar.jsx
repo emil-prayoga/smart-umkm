@@ -10,7 +10,6 @@ import {
   CreditCard, 
   TrendingUp, 
   Sparkles, 
-  FileText, 
   Settings 
 } from "lucide-react";
 

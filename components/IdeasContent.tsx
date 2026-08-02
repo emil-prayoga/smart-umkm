@@ -119,7 +119,7 @@ export default function IdeUsahaContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-all text-sm cursor-pointer disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-all text-sm cursor-pointer disabled:opacity-50"
           >
             {loading ? (
               <>

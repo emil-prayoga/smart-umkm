@@ -98,7 +98,7 @@ export default function InsightsContent() {
         <button
           onClick={handleGenerateInsights}
           disabled={loading}
-          className="w-fit flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all text-sm hover:opacity-90 cursor-pointer disabled:opacity-50 shadow-lg shadow-emerald-950/40"
+          className="w-fit flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl transition-all text-sm hover:opacity-90 cursor-pointer disabled:opacity-50 shadow-lg shadow-emerald-950/40"
         >
           {loading ? (
             <RefreshCw className="w-4 h-4 animate-spin text-neutral-950" />

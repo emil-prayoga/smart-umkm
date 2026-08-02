@@ -88,7 +88,7 @@ export default function SettingsForm() {
         <div className="pt-4 border-t border-neutral-800">
           <button
             type="submit"
-            className="w-full md:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-all text-sm cursor-pointer"
+            className="w-full md:w-auto flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-all text-sm cursor-pointer"
           >
             <Save className="w-4 h-4" /> Simpan Pengaturan
           </button>

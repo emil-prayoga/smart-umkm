@@ -119,7 +119,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="w-fit text-center flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
+            className="w-fit text-center flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Catat Transaksi
           </button>
