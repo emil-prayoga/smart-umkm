@@ -24,17 +24,22 @@ export async function POST(req: Request) {
     // 2. Inisialisasi Groq SDK
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-    const prompt = `
-Kamu adalah Analis Bisnis & Rantai Pasok UMKM Senior.
-Analisis data inventaris toko berikut dan berikan rekomendasi aksi strategis secara singkat, jelas, dan actionable:
-
-Data Ringkasan:
+    
+const prompt = `
+Kamu adalah Konsultan Business Intelligence & Data Analyst Senior untuk UMKM Indonesia.
+Berikut data inventaris dan produk toko saat ini:
 ${JSON.stringify(summaryData, null, 2)}
 
-Sajikan rekomendasi dalam poin-poin berikut:
-1. **Analisis Stok & Restock**: Produk mana yang harus segera di-restock dan prioritasnya.
-2. **Evaluasi Margin**: Rekomendasi terhadap produk margin tipis vs margin tinggi.
-3. **Strategi Penjualan**: Ide promosi/bundling produk berdasarkan data di atas.
+Berdasarkan data di atas dan karakteristik kategori bisnis produk tersebut, berikan **"Analisis & Prediksi AI Masa Depan"** yang mencakup 3 poin utama berikut:
+
+1. **Analisis Produk Terlaris vs Kurang Diminati**:
+   - Prediksikan produk mana yang berpotensi menjadi 'Top Seller' (berdasarkan margin laba & perputaran stok) vs produk yang kemungkinan 'Slow-moving' (kurang diminati).
+2. **Prediksi Waktu Penjualan Terbaik (Peak Hours & Peak Days)**:
+   - Berikan rekomendasi/analisis jam dan hari terramai yang ideal untuk menggenjot penjualan produk-produk kategori tersebut (misal: jam makan siang, akhir pekan, dll).
+3. **Prediksi Tren Pasar Musiman (Big Data Trend)**:
+   - Berikan proyeksi tren pasar dalam 1-3 bulan ke depan terkait kategori produk yang dijual (misal: pengaruh musim hujan/kemarau, momen gajian, hari libur nasional, atau tren sosial media).
+
+Gunakan bahasa Indonesia yang profesional, menyemangati, ramah, dan format Markdown (bullet points / bold) yang sangat rapi.
     `;
 
     const completion = await groq.chat.completions.create({

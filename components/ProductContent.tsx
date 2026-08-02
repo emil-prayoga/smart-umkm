@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabaseClient";
-import { Plus, Package, Edit2, Trash2, Loader2, X } from "lucide-react";
+import { Plus, Package, Edit2, Trash2, Loader2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -195,7 +195,7 @@ export default function ProductContent() {
         </div>
         <button
           onClick={handleOpenAdd}
-          className="w-fit text-center flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-semibold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-950/40"
+          className="w-fit text-center flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-950/40"
         >
           <Plus className="w-4 h-4" /> Tambah Produk
         </button>
@@ -209,7 +209,6 @@ export default function ProductContent() {
               onClick={() => setIsOpen(false)}
               className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-100 p-1 rounded-lg hover:bg-neutral-800 transition-colors"
             >
-              <X className="w-5 h-5" />
             </button>
 
             <h2 className="text-lg font-semibold flex items-center gap-2">
