@@ -43,7 +43,7 @@ Format JSON HARUS berupa objek tunggal seperti ini:
 
     const completion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile",
+     model: "openai/gpt-oss-120b",
       response_format: { type: "json_object" }, // Memaksa Groq mengembalikan JSON murni
     });
 

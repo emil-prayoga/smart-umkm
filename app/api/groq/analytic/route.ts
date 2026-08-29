@@ -3,8 +3,10 @@ import Groq from "groq-sdk";
 
 export async function POST(req: Request) {
   try {
-    // 1. Validasi API Key
-    if (!process.env.GROQ_API_KEY) {
+    const rawApiKey = process.env.GROQ_API_KEY;
+    const apiKey = rawApiKey ? rawApiKey.trim() : "";
+
+    if (!apiKey) {
       return NextResponse.json(
         { error: "GROQ_API_KEY tidak ditemukan di environment server (.env.local)" },
         { status: 500 }
@@ -21,11 +23,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Inisialisasi Groq SDK
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const groq = new Groq({ apiKey });
 
-    
-const prompt = `
+    const prompt = `
 Kamu adalah Konsultan Business Intelligence & Data Analyst Senior untuk UMKM Indonesia.
 Berikut data inventaris dan produk toko saat ini:
 ${JSON.stringify(summaryData, null, 2)}
@@ -44,17 +44,29 @@ Gunakan bahasa Indonesia yang profesional, menyemangati, ramah, dan format Markd
 
     const completion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
     });
 
     const result = completion.choices[0]?.message?.content || "Tidak ada analisis yang dihasilkan.";
 
     return NextResponse.json({ result });
-  } catch (error) {
-    console.error("Error in /api/groq-analytic:", error);
-    const message = error instanceof Error ? error.message : String(error);
+  } catch (error: unknown) {
+    console.error("Error in /api/groq/analytic:", error);
+
+    // Penanganan error tanpa 'any'
+    if (error instanceof Groq.APIError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status || 500 }
+      );
+    }
+
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json(
-      { error: message || "Terjadi kesalahan internal server" },
+      { error: "Terjadi kesalahan internal server" },
       { status: 500 }
     );
   }
