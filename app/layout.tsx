@@ -6,8 +6,8 @@ import LayoutWrapper from "@/components/LayoutWrapper";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata = {
-  title: "SmartUMKM - Platform Bisnis Berbasis AI",
-  description: "Asisten & Konsultan Bisnis Pintar untuk UMKM",
+  title: "Smart UMKM AI — Teman Tumbuh Usaha Indonesia",
+  description: "Kelola produk, pahami angka usaha, dan temukan langkah berikutnya bersama Smart UMKM AI.",
 };
 
 export default function RootLayout({
@@ -16,8 +16,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={cn("dark", geist.variable)}>
-      <body className="bg-neutral-950 text-neutral-100 antialiased font-sans">
+    <html lang="id" className={cn("light", geist.variable)}>
+      <body className="text-neutral-100 antialiased font-sans">
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>

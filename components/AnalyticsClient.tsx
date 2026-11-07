@@ -106,7 +106,7 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
   };
 
   return (
-    <main className="bg-neutral-950 text-neutral-100 p-4 sm:p-6 md:p-8 min-h-screen">
+    <main className="text-neutral-100 p-4 sm:p-6 md:p-8 min-h-screen">
       <div className="min-h-screen mx-auto space-y-8">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
@@ -127,14 +127,14 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
             {aiLoading ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
             ) : (
-              <Sparkles className="w-4 h-4 fill-neutral-950" />
+              <Sparkles className="w-4 h-4" />
             )}
             {aiLoading ? "Menganalisis Tren..." : "Jalankan Prediksi AI"}
           </button>
         </div>
 
         {/* METRIC CARDS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="analytics-metric-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
             <div className="flex items-center justify-between text-neutral-400">
               <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
@@ -182,7 +182,7 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
 
         {/* HASIL AI INSIGHT */}
         {aiRecommendation && (
-          <div className="bg-linear-to-br from-neutral-900 via-neutral-900 to-emerald-950/40 border border-emerald-500/40 p-6 rounded-2xl space-y-4 shadow-xl animate-in fade-in duration-300">
+          <div className="bg-emerald-900/20 border border-emerald-500/40 p-6 rounded-2xl space-y-4 shadow-xl animate-in fade-in duration-300">
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg border-b border-neutral-800 pb-3">
               <Sparkles className="w-5 h-5" /> Hasil Prediksi & Analisis Pasar AI
             </div>

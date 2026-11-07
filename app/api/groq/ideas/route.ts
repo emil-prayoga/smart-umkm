@@ -9,7 +9,7 @@ export async function POST(req: Request) {
 
     const prompt = `
 Kamu adalah Konsultan Bisnis & Startup UMKM berpengalaman.
-Pengguna ingin memulai usaha baru dari nol dengan detail:
+Pengguna ingin memulai usaha baru dari nol dengan singkat:
 - Modal Awal: ${capital || "Rp 5.000.000"}
 - Minat/Kategori: ${interest}
 - Lokasi: ${location || "Kota Indonesia"}
@@ -24,7 +24,7 @@ Format JSON HARUS array of object:
     "potentialProfit": "...",
     "competitorAnalysis": "..."
   }
-]
+] 
     `;
 
     const completion = await groq.chat.completions.create({

@@ -14,6 +14,9 @@ import {
   Plus,
 } from "lucide-react";
 import { supabase } from "@/src/lib/supabaseClient";
+import Pagination from "@/components/Pagination";
+
+const PAGE_SIZE = 5;
 
 export interface TransactionRecord {
   id: string;
@@ -31,6 +34,7 @@ interface FinanceClientProps {
 export default function FinanceClient({ initialRecords }: FinanceClientProps) {
   const router = useRouter();
   const [records, setRecords] = useState<TransactionRecord[]>(initialRecords);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State Modal Pop-up
@@ -50,7 +54,10 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
       .from("cash_flows")
       .select("*")
       .order("created_at", { ascending: false });
-    if (data) setRecords(data);
+    if (data) {
+      setRecords(data);
+      setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(data.length / PAGE_SIZE))));
+    }
   };
 
   // Submit Transaksi Baru
@@ -77,6 +84,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
       setAmount("");
       setDescription("");
       setIsModalOpen(false);
+      setCurrentPage(1);
       refreshData();
     }
   };
@@ -102,9 +110,10 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
     .reduce((sum, r) => sum + r.amount, 0);
 
   const netBalance = totalIncome - totalExpense;
+  const pageRecords = records.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
-    <main className="bg-neutral-950 text-neutral-100 p-6 min-h-screen md:p-8">
+    <main className="text-neutral-100 p-6 min-h-screen md:p-8">
       <div className="min-h-screen mx-auto space-y-8">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
@@ -185,64 +194,70 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
               Belum ada riwayat transaksi yang dicatat. Klik tombol Catat Transaksi di atas untuk memulai.
             </p>
           ) : (
-            <div className="space-y-3 max-h-125 overflow-y-auto pr-1">
-              {records.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between bg-neutral-950 p-4 rounded-xl border border-neutral-800/60 text-sm hover:border-neutral-700 transition-colors"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${
-                          item.type === "income"
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                            : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                        }`}
-                      >
-                        {item.category}
-                      </span>
-                      <span className="text-xs text-neutral-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(item.created_at).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                    </div>
-                    <p className="font-medium text-neutral-200">
-                      {item.description || item.category}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={`font-bold text-base ${
-                        item.type === "income" ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {item.type === "income" ? "+" : "-"} Rp{" "}
-                      {item.amount.toLocaleString("id-ID")}
-                    </span>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="text-neutral-500 hover:text-rose-400 transition-colors p-1 cursor-pointer"
-                      title="Hapus Catatan"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] text-left text-sm text-neutral-300">
+                  <thead className="border-b border-neutral-800 text-xs text-neutral-500">
+                    <tr>
+                      <th className="py-3 px-2 font-semibold">Tanggal</th>
+                      <th className="py-3 px-2 font-semibold">Jenis</th>
+                      <th className="py-3 px-2 font-semibold">Kategori</th>
+                      <th className="py-3 px-2 font-semibold">Keterangan</th>
+                      <th className="py-3 px-2 text-right font-semibold">Nominal</th>
+                      <th className="py-3 px-2 text-center font-semibold">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y border-neutral-800">
+                    {pageRecords.map((item) => (
+                      <tr key={item.id} className="transition-colors hover:bg-[#174A3A]/5">
+                        <td className="whitespace-nowrap py-3 px-2 text-neutral-400">
+                          {new Date(item.created_at).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </td>
+                        <td className="py-3 px-2">
+                          <span className={`inline-flex rounded-md px-2 py-1 text-[10px] font-semibold ${item.type === "income" ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}>
+                            {item.type === "income" ? "Pemasukan" : "Pengeluaran"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-2">{item.category}</td>
+                        <td className="max-w-[260px] truncate py-3 px-2 text-neutral-400">{item.description || "—"}</td>
+                        <td className={`whitespace-nowrap py-3 px-2 text-right font-semibold ${item.type === "income" ? "text-emerald-400" : "text-rose-400"}`}>
+                          {item.type === "income" ? "+" : "−"} Rp {item.amount.toLocaleString("id-ID")}
+                        </td>
+                        <td className="py-3 px-2 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item.id)}
+                            className="rounded-md p-2 transition-colors bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white"
+                            title="Hapus transaksi"
+                            aria-label={`Hapus transaksi ${item.description || item.category}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <Pagination
+                page={currentPage}
+                pageSize={PAGE_SIZE}
+                totalItems={records.length}
+                onPageChange={setCurrentPage}
+                label="transaksi"
+              />
+            </>
           )}
         </div>
       </div>
 
       {/* MODAL TRANSAKSI BARU */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70  animate-in fade-in duration-200">
           <div className="bg-neutral-900 border border-neutral-800 w-full max-w-md rounded-2xl p-6 space-y-5 shadow-2xl relative">
             <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
               <PlusCircle className="w-5 h-5 text-emerald-400" /> Catat Transaksi Baru
@@ -258,7 +273,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
                   }}
                   className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     type === "income"
-                      ? "bg-emerald-500 text-neutral-950"
+                      ? "bg-emerald-500 text-white"
                       : "text-neutral-400 hover:text-neutral-200"
                   }`}
                 >
@@ -272,7 +287,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
                   }}
                   className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                     type === "expense"
-                      ? "bg-rose-500 text-neutral-100"
+                      ? "bg-rose-500 text-white"
                       : "text-neutral-400 hover:text-neutral-200"
                   }`}
                 >
@@ -342,8 +357,8 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
                   disabled={isSubmitting}
                   className={`w-1/2 py-2.5 font-bold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     type === "income"
-                      ? "bg-emerald-500 hover:bg-emerald-400 text-neutral-950"
-                      : "bg-rose-500 hover:bg-rose-400 text-neutral-100"
+                      ? "bg-emerald-500 text-white hover:bg-emerald-400"
+                      : "bg-rose-500 hover:bg-rose-400 text-white"
                   }`}
                 >
                   {isSubmitting ? (

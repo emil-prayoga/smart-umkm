@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/src/lib/supabaseClient";
 import { Plus, Package, Edit2, Trash2, Loader2 } from "lucide-react";
+import Pagination from "@/components/Pagination";
+
+const PAGE_SIZE = 5;
 
 interface Product {
   id: string;
@@ -15,6 +18,7 @@ interface Product {
 
 export default function ProductContent() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
@@ -49,6 +53,11 @@ export default function ProductContent() {
     }
     loansProduct();
   }, []);
+
+  const paginatedProducts = products.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
 
   const resetForm = () => {
     setName("");
@@ -132,6 +141,7 @@ export default function ProductContent() {
     } else {
       resetForm();
       setIsOpen(false);
+      setCurrentPage(1);
       fetchProducts();
     }
   };
@@ -151,6 +161,9 @@ export default function ProductContent() {
           (item) => item.id !== idYangMauDihapus
         );
         setProducts(filteredProducts);
+        setCurrentPage((page) =>
+          Math.min(page, Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE)))
+        );
       } catch (err) {
         const msg =
           err instanceof Error ? err.message : "Gagal menghapus produk";
@@ -203,7 +216,7 @@ export default function ProductContent() {
 
       {/* MODAL FORM */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/60 h-full z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-2xl relative">
             <button
               onClick={() => setIsOpen(false)}
@@ -291,7 +304,7 @@ export default function ProductContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-1/2 py-2.5 bg-emerald-500 text-neutral-950 font-semibold rounded-xl text-sm hover:bg-emerald-400 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                  className="w-1/2 py-2.5 bg-emerald-500 text-white font-semibold rounded-xl text-sm hover:bg-emerald-400 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editingId ? "Simpan Perubahan" : "Simpan Produk"}
@@ -331,9 +344,9 @@ export default function ProductContent() {
                   <th className="py-3 px-2 text-center">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-800/50">
+              <tbody className="divide-y border-neutral-800">
                 {products.map((item) => (
-                  <tr key={item.id} className="hover:bg-neutral-800/30 transition-colors">
+                  <tr key={item.id} className="hover:bg-[#174A3A]/5 transition-colors">
                     <td className="py-3 px-2 font-medium text-neutral-100">{item.name}</td>
                     <td className="py-3 px-2 text-neutral-400">{item.category}</td>
                     <td className="py-3 px-2 font-medium">

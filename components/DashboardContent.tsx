@@ -111,39 +111,45 @@ export default function DashboardContent() {
 
       {/* RINGKASAN STATISTIK */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
+        <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between">
+          <div>
           <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
             Total Jenis Produk
           </p>
-          <div className="flex items-center justify-between">
-            <span className="text-2xl sm:text-3xl font-bold text-neutral-100">
-              {totalJenisProduk} Item
-            </span>
-            <Package className="w-8 h-8 text-emerald-400/80" />
+          <h3 className="text-2xl font-bold text-neutral-100 mt-1">
+            {totalJenisProduk} Item
+          </h3>
+          </div>
+          <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
+            <Package className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2">
+        <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between">
+          <div>
           <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
             Total Nilai Inventaris (Modal)
           </p>
-          <div className="flex items-center justify-between">
-            <span className="text-2xl sm:text-3xl font-bold text-neutral-100">
-              Rp {totalModal.toLocaleString("id-ID")}
-            </span>
-            <DollarSign className="w-8 h-8 text-teal-400/80" />
+          <h3 className="text-2xl font-bold text-neutral-100 mt-1">
+            Rp {totalModal.toLocaleString("id-ID")}
+          </h3>
+          </div>
+          <div className="p-3 bg-teal-500/10 text-teal-500 rounded-xl">
+            <DollarSign className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-2 sm:col-span-2 lg:col-span-1">
+        <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between sm:col-span-2 lg:col-span-1">
+          <div>
           <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
             Estimasi Potensi Laba
           </p>
-          <div className="flex items-center justify-between">
-            <span className="text-2xl sm:text-3xl font-bold text-emerald-400">
-              Rp {totalEstimasiLaba.toLocaleString("id-ID")}
-            </span>
-            <TrendingUp className="w-8 h-8 text-emerald-400" />
+          <h3 className="text-2xl font-bold text-emerald-400 mt-1">
+            Rp {totalEstimasiLaba.toLocaleString("id-ID")}
+          </h3>
+          </div>
+          <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
+            <TrendingUp className="w-6 h-6" />
           </div>
         </div>
       </div>

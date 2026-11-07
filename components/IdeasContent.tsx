@@ -143,7 +143,7 @@ export default function IdeUsahaContent() {
               className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all"
             >
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 justify-between">
                   <span className="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs font-bold">
                     Opsi {index + 1}
                   </span>

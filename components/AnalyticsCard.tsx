@@ -29,7 +29,7 @@ interface AnalyticsCardProps {
   loading: boolean;
 }
 
-const COLORS = ["#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
+const COLORS = ["#174A3A", "#E9A923", "#6D8C71", "#B98237", "#94AA8D", "#526F5A"];
 
 export default function AnalyticsCard({ products, loading }: AnalyticsCardProps) {
   const chartData = products.map((item) => ({
@@ -74,16 +74,16 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
         <div className="h-80 w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} barGap={8} barCategoryGap="20%">
-              <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
-              <XAxis dataKey="name" stroke="#737373" fontSize={12} />
-              <YAxis stroke="#737373" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#D9DDD2" />
+              <XAxis dataKey="name" stroke="#788178" fontSize={12} />
+              <YAxis stroke="#788178" fontSize={12} />
               <Tooltip
-                cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
+                cursor={{ fill: "rgba(23, 74, 58, 0.06)" }}
                 contentStyle={{
-                  backgroundColor: "#171717",
-                  borderColor: "#404040",
+                  backgroundColor: "#FCFBF7",
+                  borderColor: "#D9DDD2",
                   borderRadius: "8px",
-                  color: "#f5f5f5",
+                  color: "#242A26",
                 }}
                 formatter={(value) => [`Rp ${Number(value).toLocaleString("id-ID")}`, ""]}
               />
@@ -92,8 +92,8 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
               <Bar
                 dataKey="Modal"
                 name="Modal"
-                fill="rgba(13, 148, 136, 0.55)"
-                stroke="#0d9488"
+                fill="rgba(233, 169, 35, 0.4)"
+                stroke="#B98219"
                 strokeWidth={1}
                 radius={[4, 4, 0, 0]}
                 barSize={24}
@@ -102,8 +102,8 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
               <Bar
                 dataKey="PotensiLaba"
                 name="Potensi Laba"
-                fill="rgba(16, 185, 129, 0.55)"
-                stroke="#10b981"
+                fill="rgba(23, 74, 58, 0.42)"
+                stroke="#174A3A"
                 strokeWidth={1}
                 radius={[4, 4, 0, 0]}
                 barSize={24}
@@ -131,7 +131,7 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
                 outerRadius={80}
                 paddingAngle={4}
                 dataKey="value"
-                stroke="#171717"
+                stroke="#FCFBF7"
                 strokeWidth={2}
               >
                 {stockPieData.map((entry, index) => (
@@ -145,10 +145,10 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#171717",
-                  borderColor: "#404040",
+                  backgroundColor: "#FCFBF7",
+                  borderColor: "#D9DDD2",
                   borderRadius: "8px",
-                  color: "#f5f5f5",
+                  color: "#242A26",
                 }}
                 formatter={(value) => [`${value} Unit`, "Stok"]}
               />
