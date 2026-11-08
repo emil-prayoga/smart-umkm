@@ -197,7 +197,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
             <>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[720px] text-left text-sm text-neutral-300">
-                  <thead className="border-b border-neutral-800 text-xs text-neutral-500">
+                  <thead className="border-b border-neutral-800 text-xs text-neutral-500 uppercase">
                     <tr>
                       <th className="py-3 px-2 font-semibold">Tanggal</th>
                       <th className="py-3 px-2 font-semibold">Jenis</th>
