@@ -142,7 +142,7 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
               </span>
               <PackageCheck className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-2xl font-bold text-neutral-100">{totalProducts} Item</p>
+            <h3 className="text-2xl font-bold text-neutral-100">{totalProducts} Item</h3>
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
@@ -152,7 +152,7 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
               </span>
               <AlertTriangle className="w-4 h-4 text-amber-400" />
             </div>
-            <p className="text-2xl font-bold text-amber-400">{lowStockProducts.length} Produk</p>
+            <h3 className="text-2xl font-bold text-amber-400">{lowStockProducts.length} Produk</h3>
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
@@ -162,9 +162,9 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
               </span>
               <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-2xl font-bold text-neutral-100">
+            <h3 className="text-2xl font-bold text-neutral-100">
               Rp {totalValue.toLocaleString("id-ID")}
-            </p>
+            </h3>
           </div>
 
           <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
@@ -174,9 +174,9 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
               </span>
               <TrendingUp className="w-4 h-4 text-emerald-400" />
             </div>
-            <p className="text-2xl font-bold text-emerald-400">
+            <h3 className="text-2xl font-bold text-emerald-400">
               Rp {totalPotentialProfit.toLocaleString("id-ID")}
-            </p>
+            </h3>
           </div>
         </div>
 
