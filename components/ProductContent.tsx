@@ -1,23 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/src/lib/supabaseClient";
+import { useCallback, useEffect, useState } from "react";
 import { Plus, Package, Edit2, Trash2, Loader2 } from "lucide-react";
 import Pagination from "@/components/Pagination";
+import { addProduct, deleteProduct, getProducts, updateProduct } from "@/lib/data/workspace-data";
+import type { ProductRecord } from "@/lib/data/types";
+import DirectionalReveal from "@/components/motion/DirectionalReveal";
 
 const PAGE_SIZE = 5;
 
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  cost_price: number;
-  stock: number;
-}
-
-export default function ProductContent() {
-  const [products, setProducts] = useState<Product[]>([]);
+export default function ProductContent({ isDemo = false }: { isDemo?: boolean }) {
+  const [products, setProducts] = useState<ProductRecord[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
@@ -28,31 +21,21 @@ export default function ProductContent() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState("");
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Gagal mendapatkan produk:", error);
-      } else {
-        setProducts(data || []);
-      }
+      setProducts(await getProducts(isDemo ? "demo" : "user"));
     } catch (err) {
       console.error("Unexpected error:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [isDemo]);
 
-    useEffect(() => {
-    const loansProduct = async()=>{
-      fetchProducts();
-    }
-    loansProduct();
-  }, []);
+  useEffect(() => {
+    // This effect synchronizes the inventory with the selected data source.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchProducts();
+  }, [fetchProducts]);
 
   const paginatedProducts = products.slice(
     (currentPage - 1) * PAGE_SIZE,
@@ -69,11 +52,13 @@ export default function ProductContent() {
   };
 
   const handleOpenAdd = () => {
+    if (isDemo) return;
     resetForm();
     setIsOpen(true);
   };
 
-  const handleOpenEdit = (product: Product) => {
+  const handleOpenEdit = (product: ProductRecord) => {
+    if (isDemo) return;
     setEditingId(product.id);
     setName(product.name);
     setCategory(product.category);
@@ -85,6 +70,7 @@ export default function ProductContent() {
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isDemo) return;
     setLoading(true);
 
     const updatedData = {
@@ -95,17 +81,14 @@ export default function ProductContent() {
       stock: Number(stock),
     };
 
-    const { error } = await supabase
-      .from("products")
-      .update(updatedData)
-      .eq("id", editingId);
-
-    setLoading(false);
-
-    if (error) {
-      alert("Gagal memperbarui produk: " + error.message);
+    try {
+      await updateProduct("user", editingId, updatedData);
+    } catch (error) {
+      setLoading(false);
+      alert("Gagal memperbarui produk: " + (error instanceof Error ? error.message : String(error)));
       return;
     }
+    setLoading(false);
 
     const updatedList = products.map((product) =>
       product.id === editingId ? { ...product, ...updatedData } : product
@@ -118,6 +101,7 @@ export default function ProductContent() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isDemo) return;
 
     if (!name || !price || !costPrice || !stock) {
       return alert("Mohon isi field yang wajib!");
@@ -125,37 +109,31 @@ export default function ProductContent() {
 
     setLoading(true);
 
-    const { error } = await supabase.from("products").insert([
-      {
+    try {
+      await addProduct("user", {
         name,
         category: category || "Umum",
         price: Number(price),
         cost_price: Number(costPrice),
         stock: Number(stock) || 0,
-      },
-    ]);
-
-    if (error) {
-      alert("Gagal menambah produk: " + error.message);
+      });
+    } catch (error) {
+      alert("Gagal menambah produk: " + (error instanceof Error ? error.message : String(error)));
       setLoading(false);
-    } else {
-      resetForm();
-      setIsOpen(false);
-      setCurrentPage(1);
-      fetchProducts();
+      return;
     }
+    resetForm();
+    setIsOpen(false);
+    setCurrentPage(1);
+    fetchProducts();
   };
 
   const handleDeleteProduct = async (idYangMauDihapus: string) => {
+    if (isDemo) return;
     const yakin = confirm("Yakin ingin menghapus produk ini?");
     if (yakin) {
       try {
-        const { error } = await supabase
-          .from("products")
-          .delete()
-          .eq("id", idYangMauDihapus);
-
-        if (error) throw error;
+        await deleteProduct("user", idYangMauDihapus);
 
         const filteredProducts = products.filter(
           (item) => item.id !== idYangMauDihapus
@@ -195,9 +173,9 @@ export default function ProductContent() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8  p-8">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
+      <DirectionalReveal className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6" direction="left">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400">
             Manajemen Produk & Stok
@@ -208,11 +186,13 @@ export default function ProductContent() {
         </div>
         <button
           onClick={handleOpenAdd}
+          disabled={isDemo}
+          hidden={isDemo}
           className="w-fit text-center flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-950/40"
         >
           <Plus className="w-4 h-4" /> Tambah Produk
         </button>
-      </div>
+      </DirectionalReveal>
 
       {/* MODAL FORM */}
       {isOpen && (
@@ -316,7 +296,7 @@ export default function ProductContent() {
       )}
 
       {/* TABEL LIST PRODUK */}
-      <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
+      <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4" direction="up">
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Package className="w-5 h-5 text-emerald-400" /> Daftar Inventaris Produk
         </h2>
@@ -331,6 +311,7 @@ export default function ProductContent() {
             Belum ada produk. Klik tombol &quot;Tambah Produk&quot; untuk membuat data pertama Anda!
           </p>
         ) : (
+          <>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-neutral-300">
               <thead className="border-b border-neutral-800 text-xs text-neutral-500 uppercase">
@@ -341,11 +322,11 @@ export default function ProductContent() {
                   <th className="py-3 px-2">HPP (Modal)</th>
                   <th className="py-3 px-2">Laba / Unit</th>
                   <th className="py-3 px-2">Status Stok</th>
-                  <th className="py-3 px-2 text-center">Aksi</th>
+                    {!isDemo && <th className="py-3 px-2 text-center">Aksi</th>}
                 </tr>
               </thead>
               <tbody className="divide-y border-neutral-800">
-                {products.map((item) => (
+                {paginatedProducts.map((item) => (
                   <tr key={item.id} className="hover:bg-[#174A3A]/5 transition-colors">
                     <td className="py-3 px-2 font-medium text-neutral-100">{item.name}</td>
                     <td className="py-3 px-2 text-neutral-400">{item.category}</td>
@@ -359,7 +340,7 @@ export default function ProductContent() {
                       +Rp {(item.price - item.cost_price).toLocaleString("id-ID")}
                     </td>
                     <td className="py-3 px-2">{renderStockBadge(item.stock)}</td>
-                    <td className="py-3 px-2">
+                    {!isDemo && <td className="py-3 px-2">
                       <div className="flex justify-center items-center gap-2">
                         <button
                           onClick={() => handleOpenEdit(item)}
@@ -376,14 +357,22 @@ export default function ProductContent() {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                    </td>
+                    </td>}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <Pagination
+            page={currentPage}
+            pageSize={PAGE_SIZE}
+            totalItems={products.length}
+            onPageChange={setCurrentPage}
+            label="produk"
+          />
+          </>
         )}
-      </div>
+      </DirectionalReveal>
     </div>
   );
 }

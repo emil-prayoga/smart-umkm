@@ -8,6 +8,8 @@ import {
   Sparkles,
   Compass,
 } from "lucide-react";
+import { DEMO_IDEAS } from "@/lib/data/demo-fixture";
+import DirectionalReveal from "@/components/motion/DirectionalReveal";
 
 export interface BusinessIdea {
   title: string;
@@ -17,7 +19,7 @@ export interface BusinessIdea {
   competitorAnalysis: string;
 }
 
-export default function IdeUsahaContent() {
+export default function IdeUsahaContent({ isDemo = false }: { isDemo?: boolean }) {
   const [capital, setCapital] = useState("");
   const [interest, setInterest] = useState("Kuliner / Makanan");
   const [location, setLocation] = useState("");
@@ -29,7 +31,11 @@ export default function IdeUsahaContent() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/groq/ideas", {
+      if (isDemo) {
+        setIdeas(DEMO_IDEAS);
+        return;
+      }
+      const res = await fetch("/api/ai/business-ideas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ capital, interest, location }),
@@ -37,10 +43,11 @@ export default function IdeUsahaContent() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Gagal mengambil data dari server");
+        throw new Error(errData.error?.message || "Gagal mengambil data dari server");
       }
 
-      const parsedIdeas: BusinessIdea[] = await res.json();
+      const payload = await res.json();
+      const parsedIdeas: BusinessIdea[] = payload.data;
       setIdeas(parsedIdeas);
     } catch (err) {
       console.error("Error generating ideas:", err);
@@ -53,20 +60,22 @@ export default function IdeUsahaContent() {
 
 
   return (
-    <div className="space-y-8">
-      <div className="border-b border-neutral-800 pb-6">
+    <div className="space-y-8  p-8">
+      <DirectionalReveal className="border-b border-neutral-800 pb-6" direction="left">
         <h1 className="text-3xl font-bold tracking-tight text-emerald-400">
           Rekomendasi Ide Usaha AI
         </h1>
         <p className="text-neutral-400 text-sm mt-1">
           Khusus pemula: Temukan peluang bisnis paling potensial sesuai modal dan minatmu.
         </p>
-      </div>
+      </DirectionalReveal>
 
       {/* FORM INPUT */}
-      <form
-        onSubmit={handleGenerateIdeas}
+      <DirectionalReveal
+        as="form"
+        formProps={{ onSubmit: handleGenerateIdeas }}
         className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-4"
+        direction="up"
       >
         <div className="space-y-2">
           <label className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
@@ -132,15 +141,17 @@ export default function IdeUsahaContent() {
             )}
           </button>
         </div>
-      </form>
+      </DirectionalReveal>
 
       {/* HASIL IDE USAHA */}
       {ideas.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {ideas.map((idea, index) => (
-            <div
+            <DirectionalReveal
               key={index}
               className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all"
+              direction={index === 1 ? "up" : index === 0 ? "left" : "right"}
+              delay={index * 0.04}
             >
               <div className="space-y-3">
                 <div className="flex items-center gap-2 justify-between">
@@ -171,7 +182,7 @@ export default function IdeUsahaContent() {
                   </p>
                 </div>
               </div>
-            </div>
+            </DirectionalReveal>
           ))}
         </div>
       )}

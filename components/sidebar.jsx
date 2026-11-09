@@ -29,7 +29,21 @@ const menuItems = [
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
+  const isDemo = pathname === "/demo" || pathname.startsWith("/demo/");
+  const routePrefix = isDemo ? "/demo" : "";
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Logout gagal");
+      window.location.assign("/");
+    } catch {
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <>
@@ -84,13 +98,14 @@ export default function Sidebar() {
         <p className="mb-3 px-3 text-[9px] font-semibold tracking-[.12em] text-[#B7C9B9]">RUANG USAHA</p>
         <nav aria-label="Navigasi aplikasi" className="flex-1 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
-            const isActive = pathname === item.path;
+            const itemPath = `${routePrefix}${item.path}`;
+            const isActive = pathname === itemPath;
             const IconComponent = item.icon;
 
             return (
               <Link
                 key={item.path}
-                href={item.path}
+                href={itemPath}
                 onClick={() => setIsOpen(false)}
                 aria-current={isActive ? "page" : undefined}
                 className={`flex items-center gap-3 rounded-md px-3 py-3 text-[12px] font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E9A923] ${
@@ -107,15 +122,28 @@ export default function Sidebar() {
         </nav>
 
         <div className="mt-4 border-t border-white/15 pt-4">
-          <Link
-            href="/"
-            onClick={() => setIsOpen(false)}
-            className="flex min-h-11 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-[#FCFBF7] transition-colors hover:bg-white/10 hover:text-[#F2C75C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E9A923]"
-          >
-            <LogOut className="h-[17px] w-[17px]" strokeWidth={1.8} />
-            <span>Keluar Demo</span>
-          </Link>
-          <p className="px-3 pt-3 text-[9px] text-[#B7C9B9]">Smart UMKM AI · Demo usaha</p>
+          {isDemo && <div className="mb-3 rounded-md border border-[#E9A923]/45 bg-[#E9A923]/10 px-3 py-2 text-[10px] font-bold tracking-wide text-[#F2C75C]">MODE DEMO · DATA CONTOH</div>}
+          {isDemo ? (
+            <Link
+              href="/"
+              onClick={() => setIsOpen(false)}
+              className="flex min-h-11 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-[#FCFBF7] transition-colors hover:bg-white/10 hover:text-[#F2C75C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E9A923]"
+            >
+              <LogOut className="h-[17px] w-[17px]" strokeWidth={1.8} />
+              <span>Keluar Demo</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="flex min-h-11 w-full items-center gap-3 rounded-md px-3 text-left text-[12px] font-semibold text-[#FCFBF7] transition-colors hover:bg-white/10 hover:text-[#F2C75C] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E9A923] disabled:opacity-60"
+            >
+              <LogOut className="h-[17px] w-[17px]" strokeWidth={1.8} />
+              <span>{isLoggingOut ? "Keluar..." : "Keluar"}</span>
+            </button>
+          )}
+          <p className="px-3 pt-3 text-[9px] text-[#B7C9B9]">{isDemo ? "Data demonstrasi hanya baca" : "Smart UMKM AI · Ruang usaha"}</p>
         </div>
       </aside>
     </>

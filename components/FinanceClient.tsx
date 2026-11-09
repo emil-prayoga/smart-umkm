@@ -8,30 +8,26 @@ import {
   Wallet,
   PlusCircle,
   Trash2,
-  Calendar,
   Tag,
   Loader2,
   Plus,
 } from "lucide-react";
-import { supabase } from "@/src/lib/supabaseClient";
 import Pagination from "@/components/Pagination";
+import { addTransaction, deleteTransaction, getTransactions } from "@/lib/data/workspace-data";
+import type { TransactionRecord } from "@/lib/data/types";
+import DirectionalReveal from "@/components/motion/DirectionalReveal";
+import AnimatedCounter from "@/components/motion/AnimatedCounter";
 
 const PAGE_SIZE = 5;
 
-export interface TransactionRecord {
-  id: string;
-  created_at: string;
-  type: "income" | "expense";
-  amount: number;
-  category: string;
-  description: string;
-}
+export type { TransactionRecord } from "@/lib/data/types";
 
 interface FinanceClientProps {
   initialRecords: TransactionRecord[];
+  isDemo?: boolean;
 }
 
-export default function FinanceClient({ initialRecords }: FinanceClientProps) {
+export default function FinanceClient({ initialRecords, isDemo = false }: FinanceClientProps) {
   const router = useRouter();
   const [records, setRecords] = useState<TransactionRecord[]>(initialRecords);
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,54 +45,48 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
   // Refresh data dari server menggunakan router.refresh()
   const refreshData = async () => {
     router.refresh();
-    // Opsional: memperbarui local state jika diinginkan
-    const { data } = await supabase
-      .from("cash_flows")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (data) {
-      setRecords(data);
-      setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(data.length / PAGE_SIZE))));
-    }
+    const data = await getTransactions(isDemo ? "demo" : "user");
+    setRecords(data);
+    setCurrentPage((page) => Math.min(page, Math.max(1, Math.ceil(data.length / PAGE_SIZE))));
   };
 
   // Submit Transaksi Baru
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isDemo) return;
     if (!amount || Number(amount) <= 0)
       return alert("Masukkan nominal uang yang valid!");
 
     setIsSubmitting(true);
-    const { error } = await supabase.from("cash_flows").insert([
-      {
+    try {
+      await addTransaction("user", {
         type,
         amount: Number(amount),
         category,
         description,
-      },
-    ]);
-
-    setIsSubmitting(false);
-
-    if (error) {
-      alert("Gagal menyimpan transaksi: " + error.message);
-    } else {
-      setAmount("");
-      setDescription("");
-      setIsModalOpen(false);
-      setCurrentPage(1);
-      refreshData();
+      });
+    } catch (error) {
+      alert("Gagal menyimpan transaksi: " + (error instanceof Error ? error.message : String(error)));
+      setIsSubmitting(false);
+      return;
     }
+    setIsSubmitting(false);
+    setAmount("");
+    setDescription("");
+    setIsModalOpen(false);
+    setCurrentPage(1);
+    refreshData();
   };
 
   // Hapus Transaksi
   const handleDelete = async (id: string) => {
+    if (isDemo) return;
     if (!confirm("Yakin ingin menghapus catatan transaksi ini?")) return;
-    const { error } = await supabase.from("cash_flows").delete().eq("id", id);
-    if (!error) {
+    try {
+      await deleteTransaction("user", id);
       refreshData();
-    } else {
-      alert("Gagal menghapus transaksi: " + error.message);
+    } catch (error) {
+      alert("Gagal menghapus transaksi: " + (error instanceof Error ? error.message : String(error)));
     }
   };
 
@@ -113,12 +103,12 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
   const pageRecords = records.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
-    <main className="text-neutral-100 p-6 min-h-screen md:p-8">
-      <div className="min-h-screen mx-auto space-y-8">
+    <div className="text-neutral-100">
+      <div className="min-h-screen mx-auto space-y-8  p-8">
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
+        <DirectionalReveal className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6" direction="left">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-emerald-400">
+            <h1 className="text-2xl font-bold tracking-tight text-emerald-400 sm:text-3xl">
               Pencatatan Keuangan & Arus Kas
             </h1>
             <p className="text-neutral-400 text-sm mt-1">
@@ -126,45 +116,45 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
             </p>
           </div>
 
-          <button
+          {!isDemo && <button
             onClick={() => setIsModalOpen(true)}
             className="w-fit text-center flex items-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-all shadow-lg shadow-emerald-950/40 cursor-pointer"
           >
             <Plus className="w-4 h-4" /> Catat Transaksi
-          </button>
-        </div>
+          </button>}
+        </DirectionalReveal>
 
         {/* RINGKASAN SALDO */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between" direction="up" delay={0.02}>
             <div>
               <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
                 Total Pemasukan
               </p>
               <h3 className="text-2xl font-bold text-emerald-400 mt-1">
-                Rp {totalIncome.toLocaleString("id-ID")}
+                <AnimatedCounter value={totalIncome} prefix="Rp " />
               </h3>
             </div>
             <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
               <ArrowUpRight className="w-6 h-6" />
             </div>
-          </div>
+          </DirectionalReveal>
 
-          <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between" direction="down" delay={0.05}>
             <div>
               <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
                 Total Pengeluaran
               </p>
               <h3 className="text-2xl font-bold text-rose-400 mt-1">
-                Rp {totalExpense.toLocaleString("id-ID")}
+                <AnimatedCounter value={totalExpense} prefix="Rp " />
               </h3>
             </div>
             <div className="p-3 bg-rose-500/10 text-rose-400 rounded-xl">
               <ArrowDownRight className="w-6 h-6" />
             </div>
-          </div>
+          </DirectionalReveal>
 
-          <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl flex items-center justify-between" direction="up" delay={0.08}>
             <div>
               <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
                 Sisa Arus Kas (Neto)
@@ -174,17 +164,17 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
                   netBalance >= 0 ? "text-emerald-400" : "text-rose-400"
                 }`}
               >
-                Rp {netBalance.toLocaleString("id-ID")}
+                <AnimatedCounter value={netBalance} prefix="Rp " />
               </h3>
             </div>
             <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl">
               <Wallet className="w-6 h-6" />
             </div>
-          </div>
+          </DirectionalReveal>
         </div>
 
         {/* TABEL HISTORI */}
-        <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4">
+        <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4" direction="right">
           <h2 className="text-lg font-semibold text-neutral-100 flex items-center gap-2">
             <Tag className="w-5 h-5 text-emerald-400" /> Riwayat Transaksi Kas
           </h2>
@@ -196,7 +186,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
           ) : (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-left text-sm text-neutral-300">
+                <table className="w-full min-w-180 text-left text-sm text-neutral-300">
                   <thead className="border-b border-neutral-800 text-xs text-neutral-500 uppercase">
                     <tr>
                       <th className="py-3 px-2 font-semibold">Tanggal</th>
@@ -204,7 +194,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
                       <th className="py-3 px-2 font-semibold">Kategori</th>
                       <th className="py-3 px-2 font-semibold">Keterangan</th>
                       <th className="py-3 px-2 text-right font-semibold">Nominal</th>
-                      <th className="py-3 px-2 text-center font-semibold">Aksi</th>
+                       {!isDemo &&<th className="py-3 px-2 text-center font-semibold">Aksi</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y border-neutral-800">
@@ -223,12 +213,12 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
                           </span>
                         </td>
                         <td className="py-3 px-2">{item.category}</td>
-                        <td className="max-w-[260px] truncate py-3 px-2 text-neutral-400">{item.description || "—"}</td>
+                        <td className="max-w-65 truncate py-3 px-2 text-neutral-400">{item.description || "—"}</td>
                         <td className={`whitespace-nowrap py-3 px-2 text-right font-semibold ${item.type === "income" ? "text-emerald-400" : "text-rose-400"}`}>
                           {item.type === "income" ? "+" : "−"} Rp {item.amount.toLocaleString("id-ID")}
                         </td>
                         <td className="py-3 px-2 text-center">
-                          <button
+                          {!isDemo && <button
                             type="button"
                             onClick={() => handleDelete(item.id)}
                             className="rounded-md p-2 transition-colors bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white"
@@ -236,7 +226,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
                             aria-label={`Hapus transaksi ${item.description || item.category}`}
                           >
                             <Trash2 className="h-4 w-4" />
-                          </button>
+                          </button>}
                         </td>
                       </tr>
                     ))}
@@ -252,7 +242,7 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
               />
             </>
           )}
-        </div>
+        </DirectionalReveal>
       </div>
 
       {/* MODAL TRANSAKSI BARU */}
@@ -372,6 +362,6 @@ export default function FinanceClient({ initialRecords }: FinanceClientProps) {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

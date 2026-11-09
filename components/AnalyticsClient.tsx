@@ -11,6 +11,9 @@ import {
   Flame,
   TrendingDown,
 } from "lucide-react";
+import { DEMO_ANALYTICS_TEXT } from "@/lib/data/demo-fixture";
+import DirectionalReveal from "@/components/motion/DirectionalReveal";
+import AnimatedCounter from "@/components/motion/AnimatedCounter";
 
 export interface Product {
   id: string;
@@ -23,9 +26,10 @@ export interface Product {
 
 interface AnalyticClientProps {
   initialProducts: Product[];
+  isDemo?: boolean;
 }
 
-export default function AnalyticClient({ initialProducts }: AnalyticClientProps) {
+export default function AnalyticClient({ initialProducts, isDemo = false }: AnalyticClientProps) {
   const [products] = useState<Product[]>(initialProducts);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiRecommendation, setAiRecommendation] = useState<string | null>(null);
@@ -56,26 +60,12 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
 
     setAiLoading(true);
     try {
-      const summaryData = {
-        total_jenis_produk: totalProducts,
-        produk_stok_kritis: lowStockProducts.map((p) => ({
-          nama: p.name,
-          sisa_stok: p.stock,
-        })),
-        daftar_produk: products.map((p) => ({
-          nama: p.name,
-          kategori: p.category,
-          harga_jual: p.price,
-          hpp: p.cost_price,
-          laba_per_unit: p.price - p.cost_price,
-          stok: p.stock,
-        })),
-      };
-
-      const res = await fetch("/api/groq/analytic", {
+      if (isDemo) {
+        setAiRecommendation(DEMO_ANALYTICS_TEXT);
+        return;
+      }
+      const res = await fetch("/api/ai/predictions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ summaryData }),
       });
 
       // Cek apakah response berupa JSON sebelum parsing
@@ -86,13 +76,13 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
         );
       }
 
-      const data = await res.json();
+      const payload = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Gagal memproses data.");
+        throw new Error(payload.error?.message || "Gagal memproses data.");
       }
 
-      setAiRecommendation(data.result);
+      setAiRecommendation(payload.data.result);
     } catch (err) {
       console.error("AI Insight Error:", err);
       alert(
@@ -106,10 +96,9 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
   };
 
   return (
-    <main className="text-neutral-100 p-4 sm:p-6 md:p-8 min-h-screen">
-      <div className="min-h-screen mx-auto space-y-8">
+      <div className="space-y-8 p-8">
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
+        <DirectionalReveal className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6" direction="left">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400">
               Analisis & Prediksi AI
@@ -131,31 +120,31 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
             )}
             {aiLoading ? "Menganalisis Tren..." : "Jalankan Prediksi AI"}
           </button>
-        </div>
+        </DirectionalReveal>
 
         {/* METRIC CARDS */}
         <div className="analytics-metric-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2" direction="up" delay={0.02}>
             <div className="flex items-center justify-between text-neutral-400">
               <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
                 Total Jenis Produk
               </span>
               <PackageCheck className="w-4 h-4 text-emerald-400" />
             </div>
-            <h3 className="text-2xl font-bold text-neutral-100">{totalProducts} Item</h3>
-          </div>
+            <h3 className="text-2xl font-bold text-neutral-100"><AnimatedCounter value={totalProducts} suffix=" Item" /></h3>
+          </DirectionalReveal>
 
-          <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2" direction="down" delay={0.04}>
             <div className="flex items-center justify-between text-neutral-400">
               <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
                 Stok Kritis (≤ 5)
               </span>
               <AlertTriangle className="w-4 h-4 text-amber-400" />
             </div>
-            <h3 className="text-2xl font-bold text-amber-400">{lowStockProducts.length} Produk</h3>
-          </div>
+            <h3 className="text-2xl font-bold text-amber-400"><AnimatedCounter value={lowStockProducts.length} suffix=" Produk" /></h3>
+          </DirectionalReveal>
 
-          <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2" direction="up" delay={0.06}>
             <div className="flex items-center justify-between text-neutral-400">
               <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
                 Nilai Total Inventaris
@@ -163,11 +152,11 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
               <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
             <h3 className="text-2xl font-bold text-neutral-100">
-              Rp {totalValue.toLocaleString("id-ID")}
+              <AnimatedCounter value={totalValue} prefix="Rp " />
             </h3>
-          </div>
+          </DirectionalReveal>
 
-          <div className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-5 rounded-2xl space-y-2" direction="down" delay={0.08}>
             <div className="flex items-center justify-between text-neutral-400">
               <span className="text-xs text-neutral-400 font-medium uppercase tracking-wider">
                 Potensi Laba Kotor
@@ -175,21 +164,21 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
               <TrendingUp className="w-4 h-4 text-emerald-400" />
             </div>
             <h3 className="text-2xl font-bold text-emerald-400">
-              Rp {totalPotentialProfit.toLocaleString("id-ID")}
+              <AnimatedCounter value={totalPotentialProfit} prefix="Rp " />
             </h3>
-          </div>
+          </DirectionalReveal>
         </div>
 
         {/* HASIL AI INSIGHT */}
         {aiRecommendation && (
-          <div className="bg-emerald-900/20 border border-emerald-500/40 p-6 rounded-2xl space-y-4 shadow-xl animate-in fade-in duration-300">
+          <DirectionalReveal className="bg-emerald-900/20 border border-emerald-500/40 p-6 rounded-2xl space-y-4 shadow-xl" direction="up">
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg border-b border-neutral-800 pb-3">
               <Sparkles className="w-5 h-5" /> Hasil Prediksi & Analisis Pasar AI
             </div>
             <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap font-sans space-y-2">
               {aiRecommendation}
             </div>
-          </div>
+          </DirectionalReveal>
         )}
 
         {/* TOP SELLER VS MARGIN TIPIS */}
@@ -264,9 +253,9 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
                     <th className="py-3 px-2">Harga Jual</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-800/50">
+                <tbody className="divide-y border-neutral-800">
                   {lowStockProducts.map((item) => (
-                    <tr key={item.id} className="hover:bg-neutral-800/30 transition-colors">
+                    <tr key={item.id} className="hover:bg-[#174A3A]/5 transition-colors">
                       <td className="py-3 px-2 font-medium text-neutral-100">{item.name}</td>
                       <td className="py-3 px-2 text-neutral-400">{item.category}</td>
                       <td className="py-3 px-2 text-amber-400 font-bold">{item.stock} unit</td>
@@ -279,6 +268,6 @@ export default function AnalyticClient({ initialProducts }: AnalyticClientProps)
           )}
         </div>
       </div>
-    </main>
+
   );
 }

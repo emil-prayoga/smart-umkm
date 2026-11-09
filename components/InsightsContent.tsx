@@ -11,7 +11,9 @@ import {
   RefreshCw,
   Play,
 } from "lucide-react";
-import { supabase } from "@/src/lib/supabaseClient";
+import { getProducts } from "@/lib/data/workspace-data";
+import { DEMO_INSIGHTS } from "@/lib/data/demo-fixture";
+import DirectionalReveal from "@/components/motion/DirectionalReveal";
 
 export interface AIRecommendation {
   bundling: {
@@ -30,7 +32,7 @@ export interface AIRecommendation {
   };
 }
 
-export default function InsightsContent() {
+export default function InsightsContent({ isDemo = false }: { isDemo?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [hasAnalyzed, setHasAnalyzed] = useState(false);
   const [productsCount, setProductsCount] = useState<number | null>(null);
@@ -41,16 +43,7 @@ export default function InsightsContent() {
     setHasAnalyzed(true);
 
     try {
-      // 1. Fetch produk dari Supabase
-      const { data: products, error } = await supabase.from("products").select("*");
-
-      if (error) {
-        console.error("Error fetching products:", error);
-        alert("Gagal mengambil data produk dari database.");
-        return;
-      }
-
-      const productList = products || [];
+      const productList = await getProducts(isDemo ? "demo" : "user");
       setProductsCount(productList.length);
 
       if (productList.length === 0) {
@@ -58,19 +51,23 @@ export default function InsightsContent() {
         return;
       }
 
-      // 2. Panggil Route Handler Backend
-      const res = await fetch("/api/groq/insights", {
+      if (isDemo) {
+        setRecommendation(DEMO_INSIGHTS);
+        return;
+      }
+
+      // Panggil Route Handler Backend untuk data pengguna.
+      const res = await fetch("/api/ai/insights", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productList }),
       });
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Gagal mengambil data dari server");
+        throw new Error(errData.error?.message || "Gagal mengambil data dari server");
       }
 
-      const parsedData: AIRecommendation = await res.json();
+      const payload = await res.json();
+      const parsedData: AIRecommendation = payload.data;
       setRecommendation(parsedData);
     } catch (err) {
       console.error("Error generating insights:", err);
@@ -83,9 +80,9 @@ export default function InsightsContent() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8  p-8">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6">
+      <DirectionalReveal className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-neutral-800 pb-6" direction="left">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400 flex items-center gap-2.5">
             Strategi & Rekomendasi AI
@@ -107,11 +104,11 @@ export default function InsightsContent() {
           )}
           {loading ? "Menganalisis..." : hasAnalyzed ? "Analisis Ulang" : "Mulai Analisis AI"}
         </button>
-      </div>
+      </DirectionalReveal>
 
       {/* TAMPILAN AWAL */}
       {!hasAnalyzed && !loading && (
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-12 text-center space-y-4">
+        <DirectionalReveal className="bg-neutral-900 border border-neutral-800 rounded-2xl p-12 text-center space-y-4" direction="up">
           <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto border border-emerald-500/20">
             <Sparkles className="w-8 h-8" />
           </div>
@@ -121,12 +118,12 @@ export default function InsightsContent() {
               Klik tombol <strong>&quot;Mulai Analisis AI&quot;</strong> di atas untuk memproses data katalog produk milikmu dan membuatkan paket bundling, strategi promo, serta penyesuaian harga.
             </p>
           </div>
-        </div>
+        </DirectionalReveal>
       )}
 
       {/* LOADING STATE */}
       {loading && (
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-12 text-center space-y-4">
+        <DirectionalReveal className="bg-neutral-900 border border-neutral-800 rounded-2xl p-12 text-center space-y-4" direction="right">
           <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mx-auto" />
           <div>
             <h3 className="text-lg font-semibold text-neutral-200">
@@ -136,25 +133,25 @@ export default function InsightsContent() {
               Membaca katalog produk, HPP, dan struktur harga dari database milikmu.
             </p>
           </div>
-        </div>
+        </DirectionalReveal>
       )}
 
       {/* JIKA PRODUK KOSONG */}
       {hasAnalyzed && !loading && productsCount === 0 && (
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 text-center space-y-3">
+        <DirectionalReveal className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 text-center space-y-3" direction="up">
           <Lightbulb className="w-10 h-10 text-amber-400 mx-auto" />
           <h3 className="text-lg font-semibold text-neutral-200">Belum Ada Data Produk</h3>
           <p className="text-xs text-neutral-400 max-w-md mx-auto">
             AI membutuhkan data produk di menu <strong>Manajemen Produk (/products)</strong> agar bisa merancang paket bundling dan promo secara presisi.
           </p>
-        </div>
+        </DirectionalReveal>
       )}
 
       {/* HASIL REKOMENDASI */}
       {hasAnalyzed && !loading && productsCount! > 0 && recommendation && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* CARD 1: BUNDLING */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all" direction="left">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
@@ -178,10 +175,10 @@ export default function InsightsContent() {
                 {recommendation.bundling?.suggestedPrice}
               </p>
             </div>
-          </div>
+          </DirectionalReveal>
 
           {/* CARD 2: PROMO */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all" direction="up" delay={0.04}>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl">
@@ -205,10 +202,10 @@ export default function InsightsContent() {
                 {recommendation.promo?.targetDays}
               </p>
             </div>
-          </div>
+          </DirectionalReveal>
 
           {/* CARD 3: PRICING */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all">
+          <DirectionalReveal className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-4 flex flex-col justify-between hover:border-emerald-500/30 transition-all" direction="right" delay={0.08}>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl">
@@ -232,7 +229,7 @@ export default function InsightsContent() {
                 Rekomendasi AI
               </p>
             </div>
-          </div>
+          </DirectionalReveal>
         </div>
       )}
     </div>

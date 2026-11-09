@@ -14,6 +14,8 @@ import {
   Cell,
   Legend,
 } from "recharts";
+import { useReducedMotion } from "framer-motion";
+import DirectionalReveal from "@/components/motion/DirectionalReveal";
 
 interface Product {
   id: string;
@@ -32,6 +34,7 @@ interface AnalyticsCardProps {
 const COLORS = ["#174A3A", "#E9A923", "#6D8C71", "#B98237", "#94AA8D", "#526F5A"];
 
 export default function AnalyticsCard({ products, loading }: AnalyticsCardProps) {
+  const reducedMotion = useReducedMotion();
   const chartData = products.map((item) => ({
     name: item.name,
     Modal: item.cost_price * item.stock,
@@ -63,7 +66,7 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* GRAFIK 1: BAR CHART */}
-      <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-sm">
+      <DirectionalReveal className="lg:col-span-2 bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-sm" direction="up">
         <div className="flex items-center gap-2 border-b border-neutral-800 pb-4">
           <BarChart3 className="w-5 h-5 text-emerald-400" />
           <h2 className="font-semibold text-neutral-200">
@@ -97,6 +100,9 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
                 strokeWidth={1}
                 radius={[4, 4, 0, 0]}
                 barSize={24}
+                isAnimationActive={!reducedMotion}
+                animationDuration={850}
+                animationEasing="ease-out"
               />
 
               <Bar
@@ -107,14 +113,17 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
                 strokeWidth={1}
                 radius={[4, 4, 0, 0]}
                 barSize={24}
+                isAnimationActive={!reducedMotion}
+                animationDuration={850}
+                animationEasing="ease-out"
               />
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </DirectionalReveal>
 
       {/* GRAFIK 2: PIE CHART */}
-      <div className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-sm">
+      <DirectionalReveal className="bg-neutral-900 border border-neutral-800 p-6 rounded-2xl space-y-4 shadow-sm" direction="right" delay={0.06}>
         <div className="flex items-center gap-2 border-b border-neutral-800 pb-4">
           <PieIcon className="w-5 h-5 text-emerald-400" />
           <h2 className="font-semibold text-neutral-200">Komposisi Stok</h2>
@@ -133,6 +142,9 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
                 dataKey="value"
                 stroke="#FCFBF7"
                 strokeWidth={2}
+                isAnimationActive={!reducedMotion}
+                animationDuration={900}
+                animationEasing="ease-out"
               >
                 {stockPieData.map((entry, index) => (
                   <Cell
@@ -156,7 +168,7 @@ export default function AnalyticsCard({ products, loading }: AnalyticsCardProps)
             </PieChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </DirectionalReveal>
     </div>
   );
 }

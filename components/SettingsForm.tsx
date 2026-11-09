@@ -2,32 +2,53 @@
 
 import { useState, useEffect } from "react";
 import { Store, MapPin, Tag, Save, CheckCircle2 } from "lucide-react";
+import { DEMO_STORE } from "@/lib/data/demo-fixture";
+import { getBusinessProfile, saveBusinessProfile } from "@/lib/data/workspace-data";
+import DirectionalReveal from "@/components/motion/DirectionalReveal";
 
-export default function SettingsForm() {
-  const [storeName, setStoreName] = useState("");
-  const [category, setCategory] = useState("Makanan & Minuman");
-  const [location, setLocation] = useState("");
+export default function SettingsForm({ isDemo = false }: { isDemo?: boolean }) {
+  const [storeName, setStoreName] = useState(isDemo ? DEMO_STORE.name : "");
+  const [category, setCategory] = useState(isDemo ? DEMO_STORE.category : "Makanan & Minuman");
+  const [location, setLocation] = useState(isDemo ? DEMO_STORE.location : "");
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(!isDemo);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // Ambil data yang tersimpan di localStorage jika ada
-    const savedName = localStorage.getItem("smartumkm_store_name");
-    const savedCategory = localStorage.getItem("smartumkm_store_category");
-    const savedLocation = localStorage.getItem("smartumkm_store_location");
-     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (savedName) setStoreName(savedName);
-    if (savedCategory) setCategory(savedCategory);
-    if (savedLocation) setLocation(savedLocation);
-  }, []);
+    if (isDemo) return;
+    let cancelled = false;
+    async function loadProfile() {
+      try {
+        const profile = await getBusinessProfile("user");
+        if (cancelled || !profile) return;
+        setStoreName(profile.store_name ?? "");
+        setCategory(profile.category ?? "Lainnya");
+        setLocation(profile.location ?? "");
+      } catch (loadError) {
+        if (!cancelled) setError(loadError instanceof Error ? loadError.message : "Profil belum dapat dimuat.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    void loadProfile();
+    return () => { cancelled = true; };
+  }, [isDemo]);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("smartumkm_store_name", storeName);
-    localStorage.setItem("smartumkm_store_category", category);
-    localStorage.setItem("smartumkm_store_location", location);
-
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    if (isDemo) return;
+    setError("");
+    setSaving(true);
+    try {
+      await saveBusinessProfile("user", { store_name: storeName.trim(), category, location: location.trim() });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Profil belum dapat disimpan.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -38,18 +59,21 @@ export default function SettingsForm() {
           Pengaturan profil usaha berhasil disimpan!
         </div>
       )}
+      {error && <p className="rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800" role="alert">{error}</p>}
+      {loading && <p className="text-sm text-neutral-500" role="status">Memuat profil usaha...</p>}
 
-      <form onSubmit={handleSave} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-6">
+      <DirectionalReveal as="form" formProps={{ onSubmit: handleSave }} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-6" direction="up">
         <div className="space-y-2">
           <label className="text-sm font-semibold text-neutral-300 flex items-center gap-2">
             <Store className="w-4 h-4 text-emerald-400" /> Nama Toko / Usaha
           </label>
-          <input
+            <input
             type="text"
             required
             placeholder="Contoh: Kopi Kenangan Mantan"
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
+            readOnly={isDemo || loading || saving}
             className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-sm text-neutral-100 focus:outline-none focus:border-emerald-500 transition-colors"
           />
         </div>
@@ -61,6 +85,7 @@ export default function SettingsForm() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            disabled={isDemo || loading || saving}
             className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-sm text-neutral-100 focus:outline-none focus:border-emerald-500 transition-colors"
           >
             <option value="Makanan & Minuman">Makanan & Minuman (F&B)</option>
@@ -81,19 +106,21 @@ export default function SettingsForm() {
             placeholder="Contoh: Bandung Jawa Barat"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
+            readOnly={isDemo || loading || saving}
             className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-sm text-neutral-100 focus:outline-none focus:border-emerald-500 transition-colors"
           />
         </div>
 
         <div className="pt-4 border-t border-neutral-800">
-          <button
+          {!isDemo && <button
             type="submit"
+            disabled={loading || saving}
             className="w-full md:w-auto flex items-center justify-center gap-2 bg-linear-to-r from-emerald-500 to-teal-500 text-neutral-950 font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-all text-sm cursor-pointer"
           >
-            <Save className="w-4 h-4" /> Simpan Pengaturan
-          </button>
+            <Save className="w-4 h-4" /> {saving ? "Menyimpan..." : "Simpan Pengaturan"}
+          </button>}
         </div>
-      </form>
+      </DirectionalReveal>
     </div>
   );
 }
