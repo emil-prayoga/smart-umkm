@@ -71,7 +71,7 @@ export default function DashboardContent({ isDemo = false }: { isDemo?: boolean 
 
       {/* NOTIFIKASI STOK MENIPIS */}
       {lowStockProducts.length > 0 && (
-        <DirectionalReveal className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4" direction="right">
+        <DirectionalReveal className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4" direction="right">
           <div className="flex items-start gap-3">
             <div className="p-2 bg-amber-500/20 text-amber-400 rounded-xl shrink-0 mt-0.5 sm:mt-0">
               <AlertTriangle className="w-5 h-5" />
@@ -82,7 +82,7 @@ export default function DashboardContent({ isDemo = false }: { isDemo?: boolean 
               </h4>
               <p className="text-xs text-neutral-400 mt-0.5">
                 Produk seperti{" "}
-                <span className="text-amber-200 font-medium">
+                <span className="text-amber-300 font-medium">
                   {lowStockProducts.slice(0, 2).map((p) => p.name).join(", ")}
                 </span>{" "}
                 stoknya tersisa &le; 5 item. Segera restock barangmu!

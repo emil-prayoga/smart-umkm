@@ -7,11 +7,11 @@ export const DEMO_STORE = {
 };
 
 export const DEMO_PRODUCTS: ProductRecord[] = [
-  { id: "demo-p-1", name: "Kopi Susu Aren", category: "Minuman", price: 18000, cost_price: 8500, stock: 7, created_at: "2026-11-08T08:00:00.000Z" },
-  { id: "demo-p-2", name: "Es Kopi Pandan", category: "Minuman", price: 20000, cost_price: 9200, stock: 24, created_at: "2026-11-07T08:00:00.000Z" },
-  { id: "demo-p-3", name: "Roti Bakar Cokelat", category: "Makanan", price: 22000, cost_price: 12000, stock: 16, created_at: "2026-11-06T08:00:00.000Z" },
-  { id: "demo-p-4", name: "Teh Lemon Madu", category: "Minuman", price: 16000, cost_price: 7000, stock: 4, created_at: "2026-11-05T08:00:00.000Z" },
-  { id: "demo-p-5", name: "Pisang Goreng Keju", category: "Makanan", price: 19000, cost_price: 10500, stock: 12, created_at: "2026-11-04T08:00:00.000Z" },
+  { id: "demo-p-1", name: "Kopi Susu", category: "Minuman", price: 18000, cost_price: 8500, stock: 7, created_at: "2026-11-08T08:00:00.000Z" },
+  { id: "demo-p-2", name: "Kopi Pandan", category: "Minuman", price: 20000, cost_price: 9200, stock: 24, created_at: "2026-11-07T08:00:00.000Z" },
+  { id: "demo-p-3", name: "Roti Bakar", category: "Makanan", price: 22000, cost_price: 12000, stock: 16, created_at: "2026-11-06T08:00:00.000Z" },
+  { id: "demo-p-4", name: "Teh Lemon", category: "Minuman", price: 16000, cost_price: 7000, stock: 4, created_at: "2026-11-05T08:00:00.000Z" },
+  { id: "demo-p-5", name: "Pisang Goreng", category: "Makanan", price: 19000, cost_price: 10500, stock: 12, created_at: "2026-11-04T08:00:00.000Z" },
   { id: "demo-p-6", name: "Kopi Americano", category: "Minuman", price: 15000, cost_price: 6000, stock: 31, created_at: "2026-11-03T08:00:00.000Z" },
 ];
 

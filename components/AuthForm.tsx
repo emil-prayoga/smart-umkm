@@ -134,9 +134,7 @@ export default function AuthForm({ mode, nextPath = "/dashboard", initialError }
               ? "Buat akun, rapikan informasi usaha, lalu kelola produk dan arus kas dalam satu ruang."
               : "Masuk kembali untuk melihat produk, transaksi, dan insight yang tersimpan untuk usaha Anda."}</p>
           </div>
-          <motion.div className="auth-story-mark" aria-hidden="true" style={{ x: pointerX, y: pointerY }}><span>SM</span><i>AI</i></motion.div>
-          <div className="auth-story-footer"><span>Pasar Modern</span><span>Data usaha Anda, tertata.</span></div>
-        </motion.section>
+        </motion.section> 
 
         <motion.section
           className="auth-form-side"
@@ -156,22 +154,22 @@ export default function AuthForm({ mode, nextPath = "/dashboard", initialError }
 
             <form onSubmit={handleSubmit} className="auth-form">
               {isRegister && <>
-                <label>Nama usaha
+                <label><span className="auth-field-label">Nama usaha</span>
                   <input required maxLength={120} autoComplete="organization" value={storeName} onChange={(event) => setStoreName(event.target.value)} placeholder="Contoh: Kedai Rasa" />
                 </label>
-                <label>Kategori usaha
+                <label><span className="auth-field-label">Kategori usaha</span>
                   <select value={category} onChange={(event) => setCategory(event.target.value)}>
                     {categories.map((item) => <option key={item}>{item}</option>)}
                   </select>
                 </label>
-                <label>Lokasi <span className="auth-label-note">(opsional)</span>
+                <label><span className="auth-field-label">Lokasi <span className="auth-label-note">(opsional)</span></span>
                   <input maxLength={120} autoComplete="address-level2" value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Kota atau wilayah" />
                 </label>
               </>}
-              <label>Email
+              <label><span className="auth-field-label">Email</span>
                 <input required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="nama@email.com" />
               </label>
-              <label>Kata sandi
+              <label><span className="auth-field-label">Kata sandi</span>
                 <div className="auth-password-field">
                   <input required type={passwordVisible ? "text" : "password"} minLength={8} autoComplete={isRegister ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={isRegister ? "Minimal 8 karakter" : "Masukkan kata sandi"} />
                   <button
@@ -201,11 +199,11 @@ export default function AuthForm({ mode, nextPath = "/dashboard", initialError }
               </button>
             </form>
 
-            <p className="auth-switch">
+            <p className="auth-switch text-center">
               {isRegister ? "Sudah punya akun? " : "Belum punya akun? "}
               <Link href={isRegister ? "/login" : "/register"}>{isRegister ? "Login" : "Daftar"}</Link>
             </p>
-              <Link href="/" className="auth-back"><ArrowLeft size={16} /> Kembali ke beranda</Link>
+           
           </div>
         </motion.section>
       </div>
