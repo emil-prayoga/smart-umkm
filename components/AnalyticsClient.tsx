@@ -14,6 +14,7 @@ import {
 import { DEMO_ANALYTICS_TEXT } from "@/lib/data/demo-fixture";
 import DirectionalReveal from "@/components/motion/DirectionalReveal";
 import AnimatedCounter from "@/components/motion/AnimatedCounter";
+import FormattedAIText from "@/components/FormattedAIText";
 
 export interface Product {
   id: string;
@@ -175,9 +176,7 @@ export default function AnalyticClient({ initialProducts, isDemo = false }: Anal
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-lg border-b border-neutral-800 pb-3">
               <Sparkles className="w-5 h-5" /> Hasil Prediksi & Analisis Pasar AI
             </div>
-            <div className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap font-sans space-y-2">
-              {aiRecommendation}
-            </div>
+            <FormattedAIText text={aiRecommendation} className="text-sm text-neutral-300 leading-relaxed font-sans" />
           </DirectionalReveal>
         )}
 
