@@ -52,7 +52,7 @@ export default function SettingsForm({ isDemo = false }: { isDemo?: boolean }) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 ">
       {saved && (
         <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-xl flex items-center gap-3 text-sm">
           <CheckCircle2 className="w-5 h-5" />

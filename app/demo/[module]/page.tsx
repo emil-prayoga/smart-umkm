@@ -28,7 +28,7 @@ export default async function DemoModulePage({
         {module === "insights" && <InsightsContent isDemo />}
         {module === "ideas" && <IdeUsahaContent isDemo />}
         {module === "settings" && (
-          <section className="mx-auto space-y-8">
+          <section className="mx-auto space-y-8 p-8">
             <div className="border-b border-neutral-800 pb-6">
               <h1 className="flex items-center gap-2.5 text-3xl font-bold tracking-tight text-emerald-400">Pengaturan Profil Usaha</h1>
               <p className="mt-1 text-sm text-neutral-400">Profil contoh untuk melihat personalisasi ruang usaha.</p>
